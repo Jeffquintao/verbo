@@ -1,4 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
+  /* Tema claro (padrão). O modo escuro é aplicado via vars() em themes.ts. */
+  --color-background: 251 248 241;
+  --color-surface: 255 255 255;
+  --color-foreground: 28 27 34;
+  --color-border: 28 27 34;
+
   --font-display:
     Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
     Segoe UI Symbol, Noto Color Emoji;

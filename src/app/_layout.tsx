@@ -1,15 +1,30 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import { useColorScheme } from 'react-native';
+import '../global.css';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+import { themeVars } from '@/constants/themes';
+import { useAuthInit } from '@/hooks/use-auth-init';
+import { useTheme } from '@/hooks/use-theme';
+
+export default function RootLayout() {
+  const { scheme } = useTheme();
+  useAuthInit();
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <View style={[{ flex: 1 }, themeVars[scheme]]}>
+        <ThemeProvider value={scheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="(auth)" options={{ presentation: 'modal' }} />
+          </Stack>
+          <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+        </ThemeProvider>
+      </View>
+    </GestureHandlerRootView>
   );
 }

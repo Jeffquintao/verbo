@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(extract-text \"C:\\\\Users\\\\anje8\\\\Desktop\\\\Verbo\\\\BibleApp_Escopo_v1.docx\")",
+      "Bash(extract-text \"C:\\\\Users\\\\anje8\\\\Desktop\\\\Verbo\\\\BibleApp_Audio_Adendo_v1.1.docx\")"
+    ]
+  }
+}

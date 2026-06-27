@@ -1,14 +1,21 @@
+import { useColorScheme } from 'react-native';
+
+import { type ColorScheme, themeColors } from '@/constants/themes';
+import { useThemeStore, type ThemeMode } from '@/store/useThemeStore';
+
 /**
- * Learn more about light and dark modes:
- * https://docs.expo.dev/guides/color-schemes/
+ * Resolve o tema efetivo (claro/escuro) a partir da preferência do usuário
+ * (claro/escuro/sistema) e devolve as cores em hex para props JS.
  */
-
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export function useTheme() {
-  const scheme = useColorScheme();
-  const theme = scheme === 'unspecified' ? 'light' : scheme;
-
-  return Colors[theme];
+export function useTheme(): {
+  mode: ThemeMode;
+  scheme: ColorScheme;
+  colors: (typeof themeColors)[ColorScheme];
+  setMode: (mode: ThemeMode) => void;
+} {
+  const mode = useThemeStore((s) => s.mode);
+  const setMode = useThemeStore((s) => s.setMode);
+  const system = useColorScheme() ?? 'light';
+  const scheme: ColorScheme = mode === 'system' ? (system as ColorScheme) : mode;
+  return { mode, scheme, colors: themeColors[scheme], setMode };
 }
