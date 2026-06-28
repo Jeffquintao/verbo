@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Audio } from 'expo-av';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Speech from 'expo-speech';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { VoicePicker } from '@/components/voice-picker';
 import { BrandColors } from '@/constants/colors';
 import {
   bookIndexByAbbrev,
@@ -14,6 +16,9 @@ import {
   nextChapter,
   prevChapter,
 } from '@/services/bible';
+import { isCloudTtsEnabled, synthesizeToBase64 } from '@/services/cloudTts';
+import { getPortugueseVoices, pickDefaultVoice } from '@/services/tts';
+import { useAudioSettings } from '@/store/useAudioSettings';
 import { useBibleStore } from '@/store/useBibleStore';
 
 const SPEEDS = [0.75, 1.0, 1.25, 1.5];
@@ -22,6 +27,10 @@ const SLEEP_OPTIONS = [0, 5, 10, 15, 30]; // minutos; 0 = desligado
 export default function AudioPlayerScreen() {
   const { book, chapter } = useLocalSearchParams<{ book: string; chapter: string }>();
   const version = useBibleStore((s) => s.version);
+  const voiceId = useAudioSettings((s) => s.voiceId);
+  const pitch = useAudioSettings((s) => s.pitch);
+  const setVoice = useAudioSettings((s) => s.setVoice);
+  const [showVoices, setShowVoices] = useState(false);
 
   const bookIndex = bookIndexByAbbrev(book);
   const chapterNum = Number(chapter) || 1;
@@ -40,10 +49,44 @@ export default function AudioPlayerScreen() {
   const idxRef = useRef(0);
   const playingRef = useRef(false);
   const rateRef = useRef(1.0);
+  const voiceRef = useRef<string | null>(null);
+  const pitchRef = useRef(1.0);
+  const soundRef = useRef<Audio.Sound | null>(null);
   const sleepTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Mantém voz/tom escolhidos disponíveis nas chamadas de fala.
+  voiceRef.current = voiceId;
+  pitchRef.current = pitch;
+
+  // Auto-seleciona a melhor voz PT (masculina/premium) na primeira vez.
+  useEffect(() => {
+    if (voiceId) return;
+    getPortugueseVoices().then((vs) => {
+      const def = pickDefaultVoice(vs);
+      if (def) setVoice(def);
+    });
+  }, [voiceId, setVoice]);
+
+  // iOS: tocar mesmo no modo silencioso.
+  useEffect(() => {
+    Audio.setAudioModeAsync({ playsInSilentModeIOS: true }).catch(() => {});
+  }, []);
+
+  // Para qualquer reprodução em andamento (nuvem + dispositivo).
+  const stopPlayback = useCallback(async () => {
+    Speech.stop();
+    const s = soundRef.current;
+    soundRef.current = null;
+    if (s) {
+      try {
+        await s.stopAsync();
+        await s.unloadAsync();
+      } catch {}
+    }
+  }, []);
+
   const speakFrom = useCallback(
-    (i: number) => {
+    async (i: number) => {
       if (i >= verses.length) {
         playingRef.current = false;
         setPlaying(false);
@@ -51,8 +94,38 @@ export default function AudioPlayerScreen() {
       }
       idxRef.current = i;
       setIdx(i);
+
+      // Narração em nuvem (mais natural), quando configurada (.env).
+      if (isCloudTtsEnabled) {
+        const b64 = await synthesizeToBase64(verses[i], {
+          rate: rateRef.current,
+          pitch: pitchRef.current,
+        });
+        if (!playingRef.current) return; // pausado durante o fetch
+        if (b64) {
+          try {
+            const { sound } = await Audio.Sound.createAsync(
+              { uri: `data:audio/mp3;base64,${b64}` },
+              { shouldPlay: true, rate: rateRef.current, shouldCorrectPitch: true },
+            );
+            soundRef.current = sound;
+            sound.setOnPlaybackStatusUpdate((st) => {
+              if (st.isLoaded && st.didJustFinish && playingRef.current) {
+                speakFrom(idxRef.current + 1);
+              }
+            });
+            return;
+          } catch {
+            // falhou a nuvem — cai para a voz do dispositivo
+          }
+        }
+      }
+
+      // Voz do dispositivo (offline).
       Speech.speak(verses[i], {
         language: 'pt-BR',
+        voice: voiceRef.current ?? undefined,
+        pitch: pitchRef.current,
         rate: rateRef.current,
         onDone: () => {
           if (playingRef.current) speakFrom(idxRef.current + 1);
@@ -62,18 +135,18 @@ export default function AudioPlayerScreen() {
     [verses],
   );
 
-  const play = useCallback(() => {
+  const play = useCallback(async () => {
     playingRef.current = true;
     setPlaying(true);
-    Speech.stop();
+    await stopPlayback();
     speakFrom(idxRef.current);
-  }, [speakFrom]);
+  }, [speakFrom, stopPlayback]);
 
   const pause = useCallback(() => {
     playingRef.current = false;
     setPlaying(false);
-    Speech.stop();
-  }, []);
+    stopPlayback();
+  }, [stopPlayback]);
 
   // Auto-inicia ao abrir / ao trocar de capítulo
   useEffect(() => {
@@ -83,23 +156,23 @@ export default function AudioPlayerScreen() {
     return () => {
       clearTimeout(t);
       playingRef.current = false;
-      Speech.stop();
+      stopPlayback();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookIndex, chapterNum, version]);
 
-  function jumpTo(i: number) {
-    Speech.stop();
+  async function jumpTo(i: number) {
+    await stopPlayback();
     idxRef.current = i;
     setIdx(i);
     if (playingRef.current) speakFrom(i);
   }
 
-  function changeRate(r: number) {
+  async function changeRate(r: number) {
     rateRef.current = r;
     setRate(r);
     if (playingRef.current) {
-      Speech.stop();
+      await stopPlayback();
       speakFrom(idxRef.current);
     }
   }
@@ -224,6 +297,12 @@ export default function AudioPlayerScreen() {
               {sleepMin > 0 ? `${sleepMin}min` : 'Sleep'}
             </Text>
           </Pressable>
+          <Pressable
+            onPress={() => setShowVoices(true)}
+            className="flex-row items-center gap-1.5 rounded-full bg-white/10 px-4 py-2.5 active:opacity-70">
+            <Ionicons name="person-circle" size={16} color="#fff" />
+            <Text className="font-semibold text-white">Voz</Text>
+          </Pressable>
         </View>
 
         {/* Navegação de capítulo */}
@@ -278,6 +357,17 @@ export default function AudioPlayerScreen() {
           );
         })}
       </ScrollView>
+
+      <VoicePicker
+        visible={showVoices}
+        onClose={() => {
+          setShowVoices(false);
+          if (playingRef.current) {
+            Speech.stop();
+            speakFrom(idxRef.current);
+          }
+        }}
+      />
     </SafeAreaView>
   );
 }
