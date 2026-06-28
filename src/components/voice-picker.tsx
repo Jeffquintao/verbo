@@ -9,11 +9,19 @@ import { useTheme } from '@/hooks/use-theme';
 import { getPortugueseVoices, type TtsVoice, VOICE_SAMPLE, voiceLabel } from '@/services/tts';
 import { useAudioSettings } from '@/store/useAudioSettings';
 
+const PITCH_PRESETS = [
+  { label: 'Grave', value: 0.85 },
+  { label: 'Natural', value: 0.95 },
+  { label: 'Médio', value: 1.0 },
+  { label: 'Claro', value: 1.1 },
+];
+
 export function VoicePicker({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { scheme, colors } = useTheme();
   const voiceId = useAudioSettings((s) => s.voiceId);
   const pitch = useAudioSettings((s) => s.pitch);
   const setVoice = useAudioSettings((s) => s.setVoice);
+  const setPitch = useAudioSettings((s) => s.setPitch);
   const [voices, setVoices] = useState<TtsVoice[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,14 +34,19 @@ export function VoicePicker({ visible, onClose }: { visible: boolean; onClose: (
     });
   }, [visible]);
 
-  function preview(id: string) {
+  function preview(voice: string | null, p: number) {
     Speech.stop();
-    Speech.speak(VOICE_SAMPLE, { voice: id, language: 'pt-BR', pitch, rate: 1.0 });
+    Speech.speak(VOICE_SAMPLE, { voice: voice ?? undefined, language: 'pt-BR', pitch: p, rate: 1.0 });
   }
 
   function choose(id: string) {
     setVoice(id);
-    preview(id);
+    preview(id, pitch);
+  }
+
+  function choosePitch(p: number) {
+    setPitch(p);
+    preview(voiceId, p);
   }
 
   function close() {
@@ -51,6 +64,32 @@ export function VoicePicker({ visible, onClose }: { visible: boolean; onClose: (
           <Text className="mb-1 text-lg font-bold text-foreground">Escolher voz</Text>
           <Text className="mb-4 text-xs text-foreground/50">
             Toque para ouvir e selecionar. Vozes “Premium” soam mais naturais.
+          </Text>
+
+          {/* Tom da voz */}
+          <Text className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/40">
+            Tom da voz
+          </Text>
+          <View className="mb-4 flex-row gap-2">
+            {PITCH_PRESETS.map((pp) => {
+              const active = Math.abs(pitch - pp.value) < 0.001;
+              return (
+                <Pressable
+                  key={pp.label}
+                  onPress={() => choosePitch(pp.value)}
+                  className={`flex-1 items-center rounded-xl py-2.5 ${
+                    active ? 'bg-primary' : 'bg-surface'
+                  }`}>
+                  <Text className={active ? 'font-semibold text-white' : 'text-foreground/60'}>
+                    {pp.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          <Text className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/40">
+            Vozes disponíveis
           </Text>
 
           {loading ? (
