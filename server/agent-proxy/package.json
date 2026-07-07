@@ -1,0 +1,11 @@
+{
+  "name": "verbo-agent-proxy",
+  "description": "Cloud Function: proxy do Professor de Teologia (Verbo)",
+  "engines": { "node": "20" },
+  "main": "index.js",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.60.0",
+    "firebase-functions": "^6.0.0"
+  },
+  "private": true
+}

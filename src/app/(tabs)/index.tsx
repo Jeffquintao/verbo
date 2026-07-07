@@ -23,7 +23,7 @@ const MODULES: Module[] = [
   { label: 'Corrida', icon: 'walk', href: '/run', color: '#059669' },
   { label: 'Quiz', icon: 'help-circle', href: '/quiz', color: '#D4AF37' },
   { label: 'Vídeos', icon: 'play-circle', href: '/midia', color: '#DC2626' },
-  { label: 'Louvores', icon: 'musical-notes', href: '/midia', color: '#DB2777' },
+  { label: 'Professor', icon: 'school', href: '/professor', color: '#DB2777' },
 ];
 
 export default function HomeScreen() {

@@ -63,6 +63,31 @@ npx expo install react-native-purchases
 4. Implemente as chamadas em `src/services/subscriptions.ts` (TODOs marcados)
 5. Gere um **dev build** (não Expo Go): `eas build --profile development`
 
+## Professor de Teologia (agente IA)
+
+Chat de dúvidas bíblicas com IA (Claude). Cotas: **2 perguntas/dia grátis**,
+**30/dia no Premium** (constantes em `src/store/useAgentStore.ts`).
+
+**Testar agora (dev):** crie uma chave em https://console.anthropic.com →
+API Keys e coloque no `.env`:
+
+```
+EXPO_PUBLIC_ANTHROPIC_KEY=sk-ant-...
+```
+
+⚠️ Chave no app é só para desenvolvimento — nunca publique assim (qualquer
+chave embutida em app publicado pode ser extraída).
+
+**Produção:** faça o deploy do proxy em `server/agent-proxy/` (Cloud Function;
+instruções no topo do `index.js`) e aponte o app para ele:
+
+```
+EXPO_PUBLIC_AGENT_API_URL=https://southamerica-east1-SEU-PROJETO.cloudfunctions.net/askTheologian
+```
+
+A chave fica no servidor (Secret Manager). Quando o Firebase Auth estiver
+ligado, o proxy deve revalidar a cota diária no Firestore (TODO marcado).
+
 ## Build para a Play Store (EAS)
 
 ```bash

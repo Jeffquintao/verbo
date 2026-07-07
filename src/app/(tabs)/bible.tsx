@@ -172,6 +172,7 @@ export default function BibleScreen() {
           <Pressable className="rounded-t-3xl bg-background p-5 pb-8" onPress={(e) => e.stopPropagation()}>
             <View className="mb-4 h-1 w-10 self-center rounded-full bg-foreground/15" />
             {[
+              { icon: 'school', label: 'Perguntar ao professor', href: '/professor' },
               { icon: 'headset', label: 'Ouvir este capítulo', href: `/audio/${meta.abbrev}/${chapterNum}` },
               { icon: 'search', label: 'Buscar', href: '/bible/search' },
               { icon: 'language', label: 'Textos originais', href: '/originals' },
