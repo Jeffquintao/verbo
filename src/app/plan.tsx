@@ -16,6 +16,8 @@ const DAYS = Array.from({ length: PLAN_DAYS }, (_, i) => i + 1);
 export default function PlanScreen() {
   const completed = usePlanStore((s) => s.completed);
   const toggleDay = usePlanStore((s) => s.toggleDay);
+  const order = usePlanStore((s) => s.order);
+  const setOrder = usePlanStore((s) => s.setOrder);
   const earn = useTalentsStore((s) => s.earn);
   const { colors } = useTheme();
 
@@ -36,7 +38,7 @@ export default function PlanScreen() {
   );
 
   function openDay(day: number) {
-    const first = getDayReadings(day)[0];
+    const first = getDayReadings(day, order)[0];
     const abbrev = first ? getBook(first.bookIndex)?.abbrev : undefined;
     if (abbrev && first) router.push(`/bible/${abbrev}/${first.chapter}` as never);
   }
@@ -50,6 +52,28 @@ export default function PlanScreen() {
           <Ionicons name="arrow-back" size={22} color={colors.foreground} />
         </Pressable>
         <Text className="text-xl font-bold text-foreground">Plano de 365 dias</Text>
+      </View>
+
+      {/* Ordem do plano */}
+      <View className="mb-4 flex-row gap-2 rounded-2xl bg-surface p-1.5">
+        {(
+          [
+            { id: 'canonico', label: 'Canônico' },
+            { id: 'cronologico', label: 'Cronológico' },
+          ] as const
+        ).map((o) => {
+          const active = order === o.id;
+          return (
+            <Pressable
+              key={o.id}
+              onPress={() => setOrder(o.id)}
+              className={`flex-1 items-center rounded-xl py-2.5 ${active ? 'bg-primary' : ''}`}>
+              <Text className={`text-sm font-semibold ${active ? 'text-white' : 'text-foreground/60'}`}>
+                {o.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       {/* Progresso */}
@@ -72,7 +96,7 @@ export default function PlanScreen() {
         className="mb-5 flex-row items-center justify-between rounded-2xl bg-gold p-4 active:opacity-80">
         <View className="flex-1">
           <Text className="text-xs font-semibold text-foreground/60">Leitura de hoje · Dia {currentDay}</Text>
-          <Text className="font-bold text-foreground">{summarizeDay(currentDay)}</Text>
+          <Text className="font-bold text-foreground">{summarizeDay(currentDay, order)}</Text>
         </View>
         <Ionicons name="play-circle" size={28} color={BrandColors.ink} />
       </Pressable>
@@ -87,6 +111,7 @@ export default function PlanScreen() {
         data={DAYS}
         keyExtractor={(d) => String(d)}
         ListHeaderComponent={renderHeader}
+        extraData={order}
         contentContainerClassName="px-4 pb-10"
         initialNumToRender={20}
         windowSize={11}

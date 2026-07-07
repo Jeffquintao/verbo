@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { PLAN_DAYS } from '@/services/readingPlan';
+import { PLAN_DAYS, type PlanOrder } from '@/services/readingPlan';
 
 /**
  * Progresso do plano de leitura de 365 dias. Persistido localmente.
@@ -10,6 +10,8 @@ import { PLAN_DAYS } from '@/services/readingPlan';
  */
 type PlanState = {
   completed: Record<number, boolean>; // dia (1-based) -> concluído
+  order: PlanOrder; // canônico ou cronológico
+  setOrder: (order: PlanOrder) => void;
   toggleDay: (day: number) => void;
   isDone: (day: number) => boolean;
   completedCount: () => number;
@@ -20,6 +22,8 @@ export const usePlanStore = create<PlanState>()(
   persist(
     (set, get) => ({
       completed: {},
+      order: 'canonico',
+      setOrder: (order) => set({ order }),
       toggleDay: (day) =>
         set((s) => {
           const next = { ...s.completed };
