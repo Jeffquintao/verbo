@@ -4,20 +4,24 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 import { bookIndexByAbbrev, bookName, getBook } from '@/services/bible';
 import { useBibleStore } from '@/store/useBibleStore';
+import { useLocaleStore } from '@/store/useLocaleStore';
 
 export default function ChapterPicker() {
   const { book } = useLocalSearchParams<{ book: string }>();
   const version = useBibleStore((s) => s.version);
   const { colors } = useTheme();
+  const t = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
   const bookIndex = bookIndexByAbbrev(book);
   const meta = getBook(bookIndex);
 
   if (!meta) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-background">
-        <Text className="text-foreground/60">Livro não encontrado.</Text>
+        <Text className="text-foreground/60">{t.bible.bookNotFound}</Text>
       </SafeAreaView>
     );
   }
@@ -32,11 +36,11 @@ export default function ChapterPicker() {
           className="h-10 w-10 items-center justify-center rounded-full active:opacity-60">
           <Ionicons name="arrow-back" size={22} color={colors.foreground} />
         </Pressable>
-        <Text className="text-xl font-bold text-foreground">{bookName(meta, version)}</Text>
+        <Text className="text-xl font-bold text-foreground">{bookName(meta, locale)}</Text>
       </View>
 
       <ScrollView contentContainerClassName="p-4">
-        <Text className="mb-3 text-sm text-foreground/50">Escolha o capítulo</Text>
+        <Text className="mb-3 text-sm text-foreground/50">{t.bible.chooseChapter}</Text>
         <View className="flex-row flex-wrap gap-3">
           {chapters.map((c) => (
             <Pressable

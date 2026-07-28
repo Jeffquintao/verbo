@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandColors } from '@/constants/colors';
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 import { getBook } from '@/services/bible';
 import { getDayReadings, PLAN_DAYS, summarizeDay } from '@/services/readingPlan';
 import { usePlanStore } from '@/store/usePlanStore';
@@ -20,6 +21,7 @@ export default function PlanScreen() {
   const setOrder = usePlanStore((s) => s.setOrder);
   const earn = useTalentsStore((s) => s.earn);
   const { colors } = useTheme();
+  const t = useTranslation();
 
   const doneCount = Object.keys(completed).length;
   const pct = Math.round((doneCount / PLAN_DAYS) * 100);
@@ -51,15 +53,15 @@ export default function PlanScreen() {
           className="h-10 w-10 items-center justify-center rounded-full active:opacity-60">
           <Ionicons name="arrow-back" size={22} color={colors.foreground} />
         </Pressable>
-        <Text className="text-xl font-bold text-foreground">Plano de 365 dias</Text>
+        <Text className="text-xl font-bold text-foreground">{t.plan.title}</Text>
       </View>
 
       {/* Ordem do plano */}
       <View className="mb-4 flex-row gap-2 rounded-2xl bg-surface p-1.5">
         {(
           [
-            { id: 'canonico', label: 'Canônico' },
-            { id: 'cronologico', label: 'Cronológico' },
+            { id: 'canonico', label: t.plan.canonical },
+            { id: 'cronologico', label: t.plan.chronological },
           ] as const
         ).map((o) => {
           const active = order === o.id;
@@ -79,11 +81,11 @@ export default function PlanScreen() {
       {/* Progresso */}
       <View className="mb-4 rounded-3xl bg-primary p-6">
         <Text className="text-xs font-semibold uppercase tracking-wider text-white/70">
-          Seu progresso
+          {t.plan.yourProgress}
         </Text>
         <Text className="my-1 text-4xl font-bold text-white">{pct}%</Text>
         <Text className="mb-3 text-sm text-white/70">
-          {doneCount} de {PLAN_DAYS} dias concluídos
+          {t.plan.daysDone(doneCount, PLAN_DAYS)}
         </Text>
         <View className="h-2 overflow-hidden rounded-full bg-surface/20">
           <View className="h-full rounded-full bg-gold" style={{ width: `${pct}%` }} />
@@ -95,13 +97,13 @@ export default function PlanScreen() {
         onPress={() => openDay(currentDay)}
         className="mb-5 flex-row items-center justify-between rounded-2xl bg-gold p-4 active:opacity-80">
         <View className="flex-1">
-          <Text className="text-xs font-semibold text-foreground/60">Leitura de hoje · Dia {currentDay}</Text>
+          <Text className="text-xs font-semibold text-foreground/60">{t.plan.todayReading(currentDay)}</Text>
           <Text className="font-bold text-foreground">{summarizeDay(currentDay, order)}</Text>
         </View>
         <Ionicons name="play-circle" size={28} color={BrandColors.ink} />
       </Pressable>
 
-      <Text className="mb-2 text-lg font-bold text-foreground">Todos os dias</Text>
+      <Text className="mb-2 text-lg font-bold text-foreground">{t.plan.allDays}</Text>
     </View>
   );
 
@@ -131,7 +133,7 @@ export default function PlanScreen() {
                 />
               </Pressable>
               <Pressable className="flex-1 active:opacity-70" onPress={() => openDay(day)}>
-                <Text className={`text-xs ${done ? 'text-foreground/40' : 'text-foreground/60'}`}>Dia {day}</Text>
+                <Text className={`text-xs ${done ? 'text-foreground/40' : 'text-foreground/60'}`}>{t.plan.day(day)}</Text>
                 <Text
                   className={`font-medium ${done ? 'text-foreground/40 line-through' : 'text-foreground'}`}
                   numberOfLines={1}>

@@ -8,6 +8,7 @@ import { PremiumBadge } from '@/components/premium-badge';
 import { BrandColors } from '@/constants/colors';
 import { formatRef, getPlace, type PlaceRef } from '@/constants/places';
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 
 type Tab = 'hoje' | 'seculo' | 'mapa';
 
@@ -15,12 +16,13 @@ export default function PlaceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const place = getPlace(id);
   const { colors } = useTheme();
+  const t = useTranslation();
   const [tab, setTab] = useState<Tab>('hoje');
 
   if (!place) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-background">
-        <Text className="text-foreground/60">Local não encontrado.</Text>
+        <Text className="text-foreground/60">{t.places.notFound}</Text>
       </SafeAreaView>
     );
   }
@@ -44,7 +46,7 @@ export default function PlaceDetailScreen() {
           className="h-10 w-10 items-center justify-center rounded-full active:opacity-60">
           <Ionicons name="arrow-back" size={22} color={colors.foreground} />
         </Pressable>
-        <Text className="text-base font-bold text-foreground">Local histórico</Text>
+        <Text className="text-base font-bold text-foreground">{t.places.detailTitle}</Text>
         <PremiumBadge />
       </View>
 
@@ -64,20 +66,20 @@ export default function PlaceDetailScreen() {
 
         {/* Abas */}
         <View className="mx-4 mb-4 flex-row gap-2">
-          <TabButton label="Hoje" icon="camera" active={tab === 'hoje'} onPress={() => setTab('hoje')} />
+          <TabButton label={t.places.today} icon="camera" active={tab === 'hoje'} onPress={() => setTab('hoje')} />
           <TabButton
-            label="Séc. I d.C."
+            label={t.places.firstCentury}
             icon="business"
             active={tab === 'seculo'}
             onPress={() => setTab('seculo')}
           />
-          <TabButton label="No mapa" icon="map" active={tab === 'mapa'} onPress={() => setTab('mapa')} />
+          <TabButton label={t.places.onMap} icon="map" active={tab === 'mapa'} onPress={() => setTab('mapa')} />
         </View>
 
         <View className="px-5">
           {/* Sobre o local */}
           <Text className="mb-1 text-xs font-bold uppercase tracking-wider text-primary">
-            Sobre o local
+            {t.places.about}
           </Text>
           <Text className="mb-5 text-base leading-6 text-foreground/80">{place.about}</Text>
 
@@ -86,10 +88,10 @@ export default function PlaceDetailScreen() {
             <>
               <Text className="mb-4 text-base leading-6 text-foreground/80">{place.today}</Text>
               <View className="mb-5 flex-row flex-wrap gap-3">
-                <InfoCard label="Localização" value={`${place.city}, ${place.country}`} />
-                {place.builtYear && <InfoCard label="Construída em" value={place.builtYear} />}
-                <InfoCard label="Coordenadas" value={`${place.lat.toFixed(4)}° N`} />
-                {place.denomination && <InfoCard label="Denominação" value={place.denomination} />}
+                <InfoCard label={t.places.location} value={`${place.city}, ${place.country}`} />
+                {place.builtYear && <InfoCard label={t.places.builtIn} value={place.builtYear} />}
+                <InfoCard label={t.places.coordinates} value={`${place.lat.toFixed(4)}° N`} />
+                {place.denomination && <InfoCard label={t.places.denomination} value={place.denomination} />}
               </View>
             </>
           )}
@@ -113,7 +115,7 @@ export default function PlaceDetailScreen() {
                 onPress={openMaps}
                 className="flex-row items-center justify-center gap-2 rounded-full bg-primary py-3.5 active:opacity-80">
                 <Ionicons name="navigate" size={18} color="#fff" />
-                <Text className="font-bold text-white">Abrir no Google Maps</Text>
+                <Text className="font-bold text-white">{t.places.openInMaps}</Text>
               </Pressable>
             </View>
           )}
@@ -123,7 +125,7 @@ export default function PlaceDetailScreen() {
             <View className="mb-1 flex-row items-center gap-2">
               <Ionicons name="sparkles" size={16} color={BrandColors.goldDark} />
               <Text className="text-xs font-bold uppercase tracking-wider text-gold-dark">
-                Curiosidade arqueológica
+                {t.places.curiosity}
               </Text>
             </View>
             <Text className="text-sm leading-6 text-foreground/80">{place.curiosity}</Text>
@@ -131,7 +133,7 @@ export default function PlaceDetailScreen() {
 
           {/* Mencionado em */}
           <Text className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/40">
-            Mencionado em
+            {t.places.mentionedIn}
           </Text>
           <View className="flex-row flex-wrap gap-2">
             {place.refs.map((ref, i) => (

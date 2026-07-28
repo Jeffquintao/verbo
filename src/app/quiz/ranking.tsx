@@ -3,17 +3,14 @@ import { router } from 'expo-router';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { ScreenHeader } from '@/components/screen-header';
+import { useTranslation } from '@/i18n';
 import { BrandColors } from '@/constants/colors';
 import { DIVISIONS, MY_RANK, RANKING, type RankPlayer } from '@/constants/ranking';
 
-const MONTHS = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
-];
-
 export default function RankingScreen() {
+  const t = useTranslation();
   const now = new Date();
-  const monthName = MONTHS[now.getMonth()];
+  const monthName = t.ranking.months[now.getMonth()];
   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   const daysToReset = lastDay - now.getDate() + 1;
 
@@ -26,8 +23,8 @@ export default function RankingScreen() {
   return (
     <View className="flex-1 bg-background">
       <ScreenHeader
-        title={`Ranking — ${monthName}`}
-        subtitle={`Zera em ${daysToReset} dia${daysToReset > 1 ? 's' : ''}`}
+        title={t.ranking.title(monthName)}
+        subtitle={t.ranking.resetsIn(daysToReset)}
         onBack={() => router.back()}
       />
 
@@ -36,11 +33,11 @@ export default function RankingScreen() {
         <View className="mb-6 flex-row gap-2">
           {DIVISIONS.map((d) => (
             <View
-              key={d.name}
+              key={d.key}
               className="flex-1 items-center rounded-2xl border bg-surface p-2"
               style={{ borderColor: d.color + '55' }}>
               <Ionicons name="trophy" size={18} color={d.color} />
-              <Text className="mt-1 text-[11px] font-bold text-foreground">{d.name}</Text>
+              <Text className="mt-1 text-[11px] font-bold text-foreground">{t.quiz[d.key]}</Text>
               <Text className="text-[9px] text-foreground/40">{d.range}</Text>
             </View>
           ))}
@@ -67,31 +64,31 @@ export default function RankingScreen() {
               {p.streak && (
                 <View className="flex-row items-center gap-0.5 rounded-full bg-gold/15 px-2 py-0.5">
                   <Text className="text-[11px]">🔥</Text>
-                  <Text className="text-[11px] font-semibold text-gold-dark">{p.streak} dias</Text>
+                  <Text className="text-[11px] font-semibold text-gold-dark">{t.ranking.dayStreak(p.streak)}</Text>
                 </View>
               )}
-              <Text className="font-bold text-foreground">{p.points.toLocaleString('pt-BR')} pts</Text>
+              <Text className="font-bold text-foreground">{p.points.toLocaleString()} {t.quiz.points}</Text>
             </View>
           </View>
         ))}
 
         {/* Sua posição */}
         <View className="mt-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
-          <Text className="mb-2 text-xs text-foreground/50">Sua posição este mês</Text>
+          <Text className="mb-2 text-xs text-foreground/50">{t.ranking.yourPosition}</Text>
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-3">
               <Text className="text-2xl font-bold text-primary">#{MY_RANK.pos}</Text>
               <View>
-                <Text className="font-bold text-foreground">Você 🏅</Text>
+                <Text className="font-bold text-foreground">{t.ranking.you} 🏅</Text>
                 <Text className="text-xs text-foreground/50">
-                  {MY_RANK.division} · {MY_RANK.points.toLocaleString('pt-BR')} pts
+                  {t.quiz[MY_RANK.divisionKey]} · {MY_RANK.points.toLocaleString()} {t.quiz.points}
                 </Text>
               </View>
             </View>
             <View className="flex-row items-center gap-1">
               <Ionicons name="arrow-up" size={14} color="#4ade80" />
               <Text className="text-xs font-semibold text-green-500">
-                {MY_RANK.toTop10} pts pro Top 10
+                {t.ranking.toTop10(MY_RANK.toTop10)}
               </Text>
             </View>
           </View>
@@ -100,7 +97,7 @@ export default function RankingScreen() {
         <Pressable
           onPress={() => router.push('/quiz/play' as never)}
           className="mt-5 items-center rounded-full bg-primary py-4 active:opacity-80">
-          <Text className="text-base font-bold text-white">Jogar para subir</Text>
+          <Text className="text-base font-bold text-white">{t.ranking.playToClimb}</Text>
         </Pressable>
       </ScrollView>
     </View>
@@ -137,7 +134,7 @@ function PodiumSpot({
         {player.name}
       </Text>
       <Text className="mb-1 text-[11px] text-foreground/50">
-        {player.points.toLocaleString('pt-BR')} pts
+        {player.points.toLocaleString()} pts
       </Text>
       <View
         className={`w-full items-center justify-center rounded-t-xl ${height}`}

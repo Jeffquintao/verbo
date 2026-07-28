@@ -1,23 +1,27 @@
 /* eslint-disable */
 /**
- * Normaliza as fontes brutas da Bíblia para o schema único do app.
+ * Baixa e normaliza as Bíblias usadas pelo app (todas em domínio público)
+ * para o schema único: versao[livro][capitulo][versiculo] (string[][][]).
  *
- * Entrada (em src/data/bible/), formato thiagobodruk/biblia — [{ abbrev, chapters: string[][] }]:
- *   _acf_raw.json  — ACF (Almeida Corrigida Fiel)
- *   _nvi_raw.json  — NVI (Nova Versão Internacional)
+ * Fontes:
+ *   ACF  (pt) — Almeida Corrigida Fiel      — thiagobodruk/biblia
+ *   NVI  (pt) — Nova Versão Internacional   — thiagobodruk/biblia
+ *   KJV  (en) — King James Version          — bibleapi/bibleapi-bibles-json
+ *   ASV  (en) — American Standard Version   — bibleapi/bibleapi-bibles-json
+ *   RVR  (es) — Reina-Valera 1909           — aruljohn/Reina-Valera (1 arquivo por livro)
  *
- * Saída:
- *   acf.json   — string[][][]  (livro -> capítulo -> versículos)
- *   nvi.json   — string[][][]
- *   books.json — [{ abbrev, name, nameEn, testament, chapters }]
+ * Saída em src/data/bible/:
+ *   acf.json, nvi.json, kjv.json, asv.json, rvr.json   — string[][][]
+ *   books.json — [{ abbrev, name, nameEn, nameEs, testament, chapters }]
  *
- * Rodar: node scripts/build-bible.js
+ * Rodar: node scripts/build-bible.js   (precisa de internet; Node 18+)
  */
 const fs = require('fs');
 const path = require('path');
 
 const DIR = path.join(__dirname, '..', 'src', 'data', 'bible');
 
+// --- Nomes dos livros, em ordem canônica (66) ---
 const NAMES_PT = [
   'Gênesis','Êxodo','Levítico','Números','Deuteronômio','Josué','Juízes','Rute',
   '1 Samuel','2 Samuel','1 Reis','2 Reis','1 Crônicas','2 Crônicas','Esdras','Neemias',
@@ -40,36 +44,123 @@ const NAMES_EN = [
   '2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter','1 John','2 John',
   '3 John','Jude','Revelation',
 ];
+const NAMES_ES = [
+  'Génesis','Éxodo','Levítico','Números','Deuteronomio','Josué','Jueces','Rut',
+  '1 Samuel','2 Samuel','1 Reyes','2 Reyes','1 Crónicas','2 Crónicas','Esdras','Nehemías',
+  'Ester','Job','Salmos','Proverbios','Eclesiastés','Cantares','Isaías','Jeremías',
+  'Lamentaciones','Ezequiel','Daniel','Oseas','Joel','Amós','Abdías','Jonás','Miqueas',
+  'Nahúm','Habacuc','Sofonías','Hageo','Zacarías','Malaquías',
+  'Mateo','Marcos','Lucas','Juan','Hechos','Romanos','1 Corintios','2 Corintios','Gálatas',
+  'Efesios','Filipenses','Colosenses','1 Tesalonicenses','2 Tesalonicenses','1 Timoteo',
+  '2 Timoteo','Tito','Filemón','Hebreos','Santiago','1 Pedro','2 Pedro','1 Juan','2 Juan',
+  '3 Juan','Judas','Apocalipsis',
+];
 
-function readJson(file) {
-  return JSON.parse(fs.readFileSync(path.join(DIR, file), 'utf8').replace(/^﻿/, ''));
+// Nomes dos ARQUIVOS no repo aruljohn/Reina-Valera (grafia própria do repo),
+// em ordem canônica. Não confundir com NAMES_ES (o que exibimos na UI).
+const RVR_FILES = [
+  'Génesis','Éxodo','Levítico','Números','Deuteronomio','Josué','Jueces','Rut',
+  '1 Samuel','2 Samuel','1 Reyes','2 Reyes','1 Crónicas','2 Crónicas','Ésdras','Nehemías',
+  'Ester','Job','Salmos','Proverbios','Eclesiástes','Cantares','Isaías','Jeremías',
+  'Lamentaciones','Ezequiel','Daniel','Oséas','Joel','Amós','Abdías','Jonás','Miquéas',
+  'Nahum','Habacuc','Sofonías','Aggeo','Zacarías','Malaquías',
+  'San Mateo','San Márcos','San Lúcas','San Juan','Los Actos','Romanos','1 Corintios',
+  '2 Corintios','Gálatas','Efesios','Filipenses','Colosenses','1 Tesalonicenses',
+  '2 Tesalonicenses','1 Timoteo','2 Timoteo','Tito','Filemón','Hebreos','Santiago',
+  '1 San Pedro','2 San Pedro','1 San Juan','2 San Juan','3 San Juan','San Júdas','Revelación',
+];
+
+async function getJson(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`${res.status} ao baixar ${url}`);
+  return res.json();
 }
 
-/** Versão no formato thiagobodruk -> string[][][] (apenas os capítulos). */
-function normalizeVersion(raw, label) {
-  if (raw.length !== 66) throw new Error(`${label} deveria ter 66 livros, tem ${raw.length}`);
-  return raw.map((b) => b.chapters);
+/** Formato thiagobodruk: [{ abbrev, chapters: string[][] }] -> string[][][] */
+async function fetchBodruk(file, label) {
+  const raw = await getJson(`https://raw.githubusercontent.com/thiagobodruk/biblia/master/json/${file}`);
+  if (raw.length !== 66) throw new Error(`${label}: esperava 66 livros, veio ${raw.length}`);
+  return { chapters: raw.map((b) => b.chapters), abbrevs: raw.map((b) => b.abbrev) };
 }
 
-const acfRaw = readJson('_acf_raw.json');
-const nviRaw = readJson('_nvi_raw.json');
+/** Formato bibleapi: resultset.row[].field = [id, livro, cap, ver, texto] */
+async function fetchBibleApi(file, label) {
+  const raw = await getJson(`https://raw.githubusercontent.com/bibleapi/bibleapi-bibles-json/master/${file}`);
+  const out = Array.from({ length: 66 }, () => []);
+  for (const row of raw.resultset.row) {
+    const [, bookNum, chapter, verse, text] = row.field;
+    const b = bookNum - 1;
+    if (!out[b][chapter - 1]) out[b][chapter - 1] = [];
+    out[b][chapter - 1][verse - 1] = text;
+  }
+  const filled = out.filter((b) => b.length > 0).length;
+  if (filled !== 66) throw new Error(`${label}: esperava 66 livros, veio ${filled}`);
+  return out;
+}
 
-const acf = normalizeVersion(acfRaw, 'ACF');
-const nvi = normalizeVersion(nviRaw, 'NVI');
-const abbrevs = acfRaw.map((b) => b.abbrev);
+/** Formato aruljohn: um arquivo por livro, { book, chapters: [{ chapter, verses: [{verse, text}] }] } */
+async function fetchRvr() {
+  const out = [];
+  // Baixa em lotes para não abrir 66 conexões de uma vez.
+  const BATCH = 8;
+  for (let i = 0; i < RVR_FILES.length; i += BATCH) {
+    const slice = RVR_FILES.slice(i, i + BATCH);
+    const books = await Promise.all(
+      slice.map((name) =>
+        getJson(
+          `https://raw.githubusercontent.com/aruljohn/Reina-Valera/master/${encodeURIComponent(name)}.json`,
+        ),
+      ),
+    );
+    for (const book of books) {
+      out.push(book.chapters.map((ch) => ch.verses.map((v) => v.text)));
+    }
+    process.stdout.write(`  RVR ${out.length}/66\r`);
+  }
+  if (out.length !== 66) throw new Error(`RVR: esperava 66 livros, veio ${out.length}`);
+  return out;
+}
 
-const books = abbrevs.map((abbrev, i) => ({
-  abbrev,
-  name: NAMES_PT[i],
-  nameEn: NAMES_EN[i],
-  testament: i < 39 ? 'AT' : 'NT',
-  chapters: acf[i].length,
-}));
+(async () => {
+  fs.mkdirSync(DIR, { recursive: true });
 
-fs.writeFileSync(path.join(DIR, 'acf.json'), JSON.stringify(acf));
-fs.writeFileSync(path.join(DIR, 'nvi.json'), JSON.stringify(nvi));
-fs.writeFileSync(path.join(DIR, 'books.json'), JSON.stringify(books, null, 2));
+  console.log('Baixando ACF…');
+  const acf = await fetchBodruk('acf.json', 'ACF');
+  console.log('Baixando NVI…');
+  const nvi = await fetchBodruk('nvi.json', 'NVI');
+  console.log('Baixando KJV…');
+  const kjv = await fetchBibleApi('kjv.json', 'KJV');
+  console.log('Baixando ASV…');
+  const asv = await fetchBibleApi('asv.json', 'ASV');
+  console.log('Baixando RVR (66 arquivos)…');
+  const rvr = await fetchRvr();
+  console.log('');
 
-console.log(`OK — ${books.length} livros.`);
-console.log(`ACF: ${acf.reduce((n, b) => n + b.length, 0)} capítulos.`);
-console.log(`NVI: ${nvi.reduce((n, b) => n + b.length, 0)} capítulos.`);
+  const books = acf.abbrevs.map((abbrev, i) => ({
+    abbrev,
+    name: NAMES_PT[i],
+    nameEn: NAMES_EN[i],
+    nameEs: NAMES_ES[i],
+    testament: i < 39 ? 'AT' : 'NT',
+    chapters: acf.chapters[i].length,
+  }));
+
+  const write = (file, data) => fs.writeFileSync(path.join(DIR, file), JSON.stringify(data));
+  write('acf.json', acf.chapters);
+  write('nvi.json', nvi.chapters);
+  write('kjv.json', kjv);
+  write('asv.json', asv);
+  write('rvr.json', rvr);
+  fs.writeFileSync(path.join(DIR, 'books.json'), JSON.stringify(books, null, 2));
+
+  const count = (v) => v.reduce((n, b) => n + b.length, 0);
+  console.log(`OK — ${books.length} livros.`);
+  console.log(`ACF: ${count(acf.chapters)} capítulos`);
+  console.log(`NVI: ${count(nvi.chapters)} capítulos`);
+  console.log(`KJV: ${count(kjv)} capítulos`);
+  console.log(`ASV: ${count(asv)} capítulos`);
+  console.log(`RVR: ${count(rvr)} capítulos`);
+})().catch((err) => {
+  console.error('FALHOU:', err.message);
+  process.exit(1);
+});

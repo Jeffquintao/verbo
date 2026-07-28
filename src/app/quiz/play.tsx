@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BrandColors } from '@/constants/colors';
 import { pickQuizQuestions } from '@/constants/quiz';
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 import { useTalentsStore } from '@/store/useTalentsStore';
 
 const QUESTION_TIME = 30; // segundos
@@ -14,6 +15,7 @@ const FAST_THRESHOLD = 10; // responder em < 10s vale mais
 
 export default function QuizPlayScreen() {
   const { colors } = useTheme();
+  const t = useTranslation();
   const [questions] = useState(() => pickQuizQuestions(10));
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -163,8 +165,8 @@ export default function QuizPlayScreen() {
 
       {/* Rodapé: pontos + combo */}
       <View className="flex-row items-center justify-between px-5 pb-4">
-        <Text className="font-semibold text-foreground/60">{points} pts</Text>
-        {combo >= 2 && <Text className="font-bold text-gold-dark">🔥 Combo x{combo}</Text>}
+        <Text className="font-semibold text-foreground/60">{points} {t.quiz.points}</Text>
+        {combo >= 2 && <Text className="font-bold text-gold-dark">🔥 {t.quiz.combo(combo)}</Text>}
       </View>
     </SafeAreaView>
   );
@@ -181,6 +183,7 @@ function QuizResult({
   points: number;
   talents: number;
 }) {
+  const t = useTranslation();
   const pct = Math.round((correct / total) * 100);
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -190,30 +193,30 @@ function QuizResult({
         </View>
         <Text className="text-3xl font-bold text-foreground">{pct}%</Text>
         <Text className="mb-6 text-foreground/60">
-          Você acertou {correct} de {total}
+          {t.quiz.correctOf(correct, total)}
         </Text>
 
         <View className="mb-8 w-full flex-row gap-3">
           <View className="flex-1 items-center rounded-2xl bg-surface p-4">
             <Text className="text-2xl font-bold text-primary">{points}</Text>
-            <Text className="text-xs text-foreground/50">pontos</Text>
+            <Text className="text-xs text-foreground/50">{t.quiz.pointsLabel}</Text>
           </View>
           <View className="flex-1 items-center rounded-2xl bg-surface p-4">
             <View className="flex-row items-center gap-1">
               <Ionicons name="diamond" size={18} color={BrandColors.goldDark} />
               <Text className="text-2xl font-bold text-gold-dark">+{talents}</Text>
             </View>
-            <Text className="text-xs text-foreground/50">Talentos</Text>
+            <Text className="text-xs text-foreground/50">{t.common.talents}</Text>
           </View>
         </View>
 
         <Pressable
           onPress={() => router.replace('/quiz/play' as never)}
           className="mb-3 w-full items-center rounded-full bg-primary py-4 active:opacity-80">
-          <Text className="text-base font-bold text-white">Jogar de novo</Text>
+          <Text className="text-base font-bold text-white">{t.quiz.playAgain}</Text>
         </Pressable>
         <Pressable onPress={() => router.back()} className="w-full items-center py-3">
-          <Text className="font-semibold text-foreground/60">Voltar</Text>
+          <Text className="font-semibold text-foreground/60">{t.quiz.backToQuiz}</Text>
         </Pressable>
       </View>
     </SafeAreaView>

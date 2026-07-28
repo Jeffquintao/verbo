@@ -6,8 +6,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandColors } from '@/constants/colors';
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 import { bookName, findBook, getBook, searchVerses } from '@/services/bible';
 import { useBibleStore } from '@/store/useBibleStore';
+import { useLocaleStore } from '@/store/useLocaleStore';
 
 function highlight(text: string, query: string) {
   const q = query.trim();
@@ -26,6 +28,8 @@ function highlight(text: string, query: string) {
 export default function SearchScreen() {
   const version = useBibleStore((s) => s.version);
   const { colors } = useTheme();
+  const t = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
   const [query, setQuery] = useState('');
 
   const results = useMemo(() => searchVerses(version, query, 80), [version, query]);
@@ -47,7 +51,7 @@ export default function SearchScreen() {
             autoFocus
             value={query}
             onChangeText={setQuery}
-            placeholder={`Buscar em ${version}…`}
+            placeholder={t.search.placeholder(version)}
             placeholderTextColor={BrandColors.muted}
             className="flex-1 py-3 text-base text-foreground"
           />
@@ -71,7 +75,7 @@ export default function SearchScreen() {
             <View className="flex-row items-center gap-3">
               <Ionicons name="book" size={20} color="#fff" />
               <Text className="font-semibold text-white">
-                Abrir {bookName(matchedBook, version)}
+                {t.search.open(bookName(matchedBook, locale))}
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color="#fff" />
@@ -80,7 +84,7 @@ export default function SearchScreen() {
 
         {query.trim().length >= 2 && (
           <Text className="mb-3 mt-1 text-xs text-foreground/50">
-            {results.length === 80 ? '80+ ' : results.length} resultado(s)
+            {t.search.results(results.length)}
           </Text>
         )}
 
@@ -92,7 +96,7 @@ export default function SearchScreen() {
               onPress={() => router.push(`/bible/${book.abbrev}/${r.chapter}` as never)}
               className="mb-2 rounded-2xl bg-surface p-4 active:opacity-70">
               <Text className="mb-1 text-xs font-bold text-primary">
-                {bookName(book, version)} {r.chapter}:{r.verse}
+                {bookName(book, locale)} {r.chapter}:{r.verse}
               </Text>
               {highlight(r.text, query)}
             </Pressable>
@@ -102,7 +106,7 @@ export default function SearchScreen() {
         {query.trim().length >= 2 && results.length === 0 && !matchedBook && (
           <View className="mt-16 items-center">
             <Ionicons name="search" size={40} color={BrandColors.muted} />
-            <Text className="mt-3 text-foreground/50">Nenhum resultado para “{query}”.</Text>
+            <Text className="mt-3 text-foreground/50">{t.search.noResults(query)}</Text>
           </View>
         )}
       </ScrollView>

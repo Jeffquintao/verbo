@@ -5,8 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandColors } from '@/constants/colors';
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 import { bookName, getBook } from '@/services/bible';
 import { useBibleStore } from '@/store/useBibleStore';
+import { useLocaleStore } from '@/store/useLocaleStore';
 import { useLibraryStore } from '@/store/useLibraryStore';
 
 export default function NotesScreen() {
@@ -14,6 +16,8 @@ export default function NotesScreen() {
   const notes = useLibraryStore((s) => s.notes);
   const removeNote = useLibraryStore((s) => s.removeNote);
   const { colors } = useTheme();
+  const t = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
@@ -23,7 +27,7 @@ export default function NotesScreen() {
           className="h-10 w-10 items-center justify-center rounded-full active:opacity-60">
           <Ionicons name="arrow-back" size={22} color={colors.foreground} />
         </Pressable>
-        <Text className="text-xl font-bold text-foreground">Minhas notas</Text>
+        <Text className="text-xl font-bold text-foreground">{t.notes.title}</Text>
       </View>
 
       <ScrollView contentContainerClassName="p-4 pb-10" showsVerticalScrollIndicator={false}>
@@ -31,14 +35,14 @@ export default function NotesScreen() {
           <View className="mt-24 items-center">
             <Ionicons name="create-outline" size={44} color={BrandColors.muted} />
             <Text className="mt-3 text-center text-foreground/50">
-              Você ainda não tem notas.{'\n'}Toque em um versículo para adicionar.
+              {t.notes.empty}{'\n'}{t.notes.emptyHint}
             </Text>
           </View>
         )}
 
         {notes.map((n) => {
           const book = getBook(n.bookIndex);
-          const ref = book ? `${bookName(book, version)} ${n.chapter}:${n.verse}` : '';
+          const ref = book ? `${bookName(book, locale)} ${n.chapter}:${n.verse}` : '';
           return (
             <View key={n.id} className="mb-3 rounded-2xl bg-surface p-4">
               <View className="mb-2 flex-row items-center justify-between">

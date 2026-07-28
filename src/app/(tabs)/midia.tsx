@@ -4,18 +4,20 @@ import { useState } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { ScreenHeader } from '@/components/screen-header';
+import { useTranslation } from '@/i18n';
 import { FEATURED, MEDIA, type MediaTab } from '@/constants/media';
 
-const TABS: { id: MediaTab; label: string }[] = [
-  { id: 'videos', label: 'Vídeos' },
-  { id: 'podcasts', label: 'Podcasts' },
-  { id: 'louvores', label: 'Louvores' },
-];
 
 export default function MidiaScreen() {
+  const t = useTranslation();
   const [tab, setTab] = useState<MediaTab>('videos');
   const featured = FEATURED[tab];
   const items = MEDIA[tab];
+  const TABS: { id: MediaTab; label: string }[] = [
+    { id: 'videos', label: t.media.videos },
+    { id: 'podcasts', label: t.media.podcasts },
+    { id: 'louvores', label: t.media.worship },
+  ];
 
   function open(url: string) {
     Linking.openURL(url);
@@ -23,18 +25,18 @@ export default function MidiaScreen() {
 
   return (
     <View className="flex-1 bg-ink">
-      <ScreenHeader title="Mídia" />
+      <ScreenHeader title={t.media.title} />
 
       <ScrollView contentContainerClassName="p-5 pb-10" showsVerticalScrollIndicator={false}>
         {/* Abas */}
         <View className="mb-6 flex-row gap-2">
-          {TABS.map((t) => (
+          {TABS.map((tb) => (
             <Pressable
-              key={t.id}
-              onPress={() => setTab(t.id)}
-              className={`rounded-full px-4 py-2 ${tab === t.id ? 'bg-primary' : 'bg-white/10'}`}>
-              <Text className={`font-semibold ${tab === t.id ? 'text-white' : 'text-white/60'}`}>
-                {t.label}
+              key={tb.id}
+              onPress={() => setTab(tb.id)}
+              className={`rounded-full px-4 py-2 ${tab === tb.id ? 'bg-primary' : 'bg-white/10'}`}>
+              <Text className={`font-semibold ${tab === tb.id ? 'text-white' : 'text-white/60'}`}>
+                {tb.label}
               </Text>
             </Pressable>
           ))}
@@ -42,7 +44,7 @@ export default function MidiaScreen() {
 
         {/* Em destaque */}
         <Text className="mb-2 text-xs font-bold uppercase tracking-wider text-white/40">
-          Em destaque
+          {t.media.featured}
         </Text>
         <Pressable
           onPress={() => open(featured.url)}
@@ -62,7 +64,7 @@ export default function MidiaScreen() {
 
         {/* Grade */}
         <Text className="mb-3 text-xs font-bold uppercase tracking-wider text-white/40">
-          {tab === 'louvores' ? 'Louvores populares' : tab === 'podcasts' ? 'Episódios' : 'Recomendados'}
+          {tab === 'louvores' ? t.media.popularWorship : tab === 'podcasts' ? t.media.episodes : t.media.recommended}
         </Text>
         <View className="mb-6 flex-row flex-wrap justify-between">
           {items.map((item) => (
@@ -87,15 +89,15 @@ export default function MidiaScreen() {
         <View className="rounded-3xl bg-primary p-5">
           <View className="mb-1 flex-row items-center gap-2">
             <Ionicons name="diamond" size={18} color="#EAC84F" />
-            <Text className="text-lg font-bold text-white">Premium</Text>
+            <Text className="text-lg font-bold text-white">{t.common.premium}</Text>
           </View>
           <Text className="mb-4 text-sm text-white/70">
-            Acesse todos os estudos, versões e sem anúncios.
+            {t.media.premiumPitch}
           </Text>
           <Pressable
             onPress={() => router.push('/premium' as never)}
             className="items-center rounded-full bg-gold py-3.5 active:opacity-80">
-            <Text className="font-bold text-ink">Ver planos — a partir de $2,99</Text>
+            <Text className="font-bold text-ink">{t.media.seePlans}</Text>
           </Pressable>
         </View>
       </ScrollView>

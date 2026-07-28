@@ -8,17 +8,19 @@ import { VerseActionSheet } from '@/components/verse-action-sheet';
 import { BrandColors } from '@/constants/colors';
 import { formatRef, placesInChapter } from '@/constants/places';
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 import {
-  BIBLE_VERSIONS,
   bookIndexByAbbrev,
   bookName,
   getBook,
   getChapterVerses,
   nextChapter,
   prevChapter,
+  versionsForLocale,
 } from '@/services/bible';
 import { useBibleStore } from '@/store/useBibleStore';
 import { useLibraryStore, verseKey } from '@/store/useLibraryStore';
+import { useLocaleStore } from '@/store/useLocaleStore';
 
 export default function ReaderScreen() {
   const { book, chapter } = useLocalSearchParams<{ book: string; chapter: string }>();
@@ -29,6 +31,8 @@ export default function ReaderScreen() {
   const notes = useLibraryStore((s) => s.notes);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const { colors } = useTheme();
+  const t = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
 
   const bookIndex = bookIndexByAbbrev(book);
   const chapterNum = Number(chapter) || 1;
@@ -46,7 +50,7 @@ export default function ReaderScreen() {
   if (!meta) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-background">
-        <Text className="text-foreground/60">Livro não encontrado.</Text>
+        <Text className="text-foreground/60">{t.bible.bookNotFound}</Text>
       </SafeAreaView>
     );
   }
@@ -70,10 +74,10 @@ export default function ReaderScreen() {
           <Ionicons name="arrow-back" size={22} color={colors.foreground} />
         </Pressable>
         <Text className="text-lg font-bold text-foreground">
-          {bookName(meta, version)} {chapterNum}
+          {bookName(meta, locale)} {chapterNum}
         </Text>
         <View className="flex-row rounded-full bg-surface p-0.5">
-          {BIBLE_VERSIONS.map((v) => (
+          {versionsForLocale(locale).map((v) => (
             <Pressable
               key={v.id}
               onPress={() => setVersion(v.id)}
@@ -121,7 +125,7 @@ export default function ReaderScreen() {
             <View className="mb-2 flex-row items-center gap-1.5">
               <Ionicons name="location" size={14} color={BrandColors.goldDark} />
               <Text className="text-xs font-bold uppercase tracking-wider text-gold-dark">
-                Local mencionado neste capítulo
+                {t.bible.placeInChapter}
               </Text>
             </View>
             <View className="flex-row items-center gap-3">
@@ -137,7 +141,7 @@ export default function ReaderScreen() {
                 </Text>
               </View>
               <View className="rounded-full bg-gold px-3 py-1.5">
-                <Text className="text-xs font-bold text-foreground">Ver</Text>
+                <Text className="text-xs font-bold text-foreground">{t.bible.view}</Text>
               </View>
             </View>
           </Pressable>
@@ -148,7 +152,7 @@ export default function ReaderScreen() {
         bookIndex={bookIndex}
         chapter={chapterNum}
         verse={selectedVerse}
-        reference={`${bookName(meta, version)} ${chapterNum}:${selectedVerse ?? ''}`}
+        reference={`${bookName(meta, locale)} ${chapterNum}:${selectedVerse ?? ''}`}
         onClose={() => setSelectedVerse(null)}
       />
 
@@ -182,18 +186,19 @@ function NavButton({
   disabled: boolean;
   onPress: () => void;
 }) {
+  const t = useTranslation();
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       className={`flex-1 flex-row items-center justify-center gap-1.5 rounded-full py-3 ${
-        disabled ? 'bg-ink/5' : 'bg-primary active:opacity-80'
+        disabled ? 'bg-foreground/5' : 'bg-primary active:opacity-80'
       }`}>
       {dir === 'prev' && (
         <Ionicons name="chevron-back" size={16} color={disabled ? BrandColors.muted : '#fff'} />
       )}
       <Text className={`text-sm font-semibold ${disabled ? 'text-foreground/30' : 'text-white'}`}>
-        {dir === 'prev' ? 'Anterior' : 'Próximo'}
+        {dir === 'prev' ? t.bible.previous : t.bible.next}
       </Text>
       {dir === 'next' && (
         <Ionicons name="chevron-forward" size={16} color={disabled ? BrandColors.muted : '#fff'} />

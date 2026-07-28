@@ -15,6 +15,7 @@ import {
 import { ScreenHeader } from '@/components/screen-header';
 import { BrandColors } from '@/constants/colors';
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 import { askTheologian, isAgentConfigured } from '@/services/theologian';
 import {
   FREE_DAILY_LIMIT,
@@ -23,14 +24,9 @@ import {
 } from '@/store/useAgentStore';
 import { useAuthStore } from '@/store/useAuthStore';
 
-const SUGGESTIONS = [
-  'O que significa "nascer de novo"?',
-  'Quem escreveu o livro de Hebreus?',
-  'Qual a diferença entre graça e misericórdia?',
-];
-
 export default function ProfessorScreen() {
   const { colors } = useTheme();
+  const t = useTranslation();
   const user = useAuthStore((s) => s.user);
   const isPremium = user?.isPremium ?? false;
   const limit = isPremium ? PREMIUM_DAILY_LIMIT : FREE_DAILY_LIMIT;
@@ -44,6 +40,7 @@ export default function ProfessorScreen() {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
+  const SUGGESTIONS = [t.professor.suggestion1, t.professor.suggestion2, t.professor.suggestion3];
   const remaining = Math.max(0, limit - usedToday());
   const limitReached = remaining <= 0;
 
@@ -68,7 +65,7 @@ export default function ProfessorScreen() {
     } catch (err) {
       addMessage({
         role: 'assistant',
-        text: `⚠️ ${err instanceof Error ? err.message : 'Algo deu errado. Tente novamente.'}`,
+        text: `⚠️ ${err instanceof Error ? err.message : t.common.somethingWentWrong}`,
       });
     } finally {
       setLoading(false);
@@ -78,14 +75,14 @@ export default function ProfessorScreen() {
   return (
     <View className="flex-1 bg-background">
       <ScreenHeader
-        title="Professor de Teologia"
-        subtitle="Tire suas dúvidas bíblicas"
+        title={t.professor.title}
+        subtitle={t.professor.subtitle}
         onBack={() => router.back()}
         right={
           <View className="flex-row items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5">
             <Ionicons name="chatbubbles" size={14} color={BrandColors.gold} />
             <Text className="text-xs font-bold text-gold-light">
-              {remaining}/{limit} hoje
+              {t.professor.quotaToday(remaining, limit)}
             </Text>
           </View>
         }
@@ -107,11 +104,10 @@ export default function ProfessorScreen() {
                 <Ionicons name="school" size={32} color="#fff" />
               </View>
               <Text className="mb-1 text-lg font-bold text-foreground">
-                Olá! Sou seu professor de teologia.
+                {t.professor.welcomeTitle}
               </Text>
               <Text className="mb-6 text-center text-sm text-foreground/50">
-                Pergunte sobre a Bíblia, história, doutrinas ou vida cristã. Respondo com base
-                nas Escrituras, citando as referências.
+                {t.professor.welcomeBody}
               </Text>
               {SUGGESTIONS.map((s) => (
                 <Pressable
@@ -124,7 +120,7 @@ export default function ProfessorScreen() {
               ))}
               {!isAgentConfigured && (
                 <Text className="mt-4 text-center text-xs text-gold-dark">
-                  IA ainda não configurada — adicione a chave no .env (ver SETUP.md).
+                  {t.professor.notConfigured}
                 </Text>
               )}
             </View>
@@ -151,7 +147,7 @@ export default function ProfessorScreen() {
           {loading && (
             <View className="mb-3 flex-row items-center gap-2 self-start rounded-2xl rounded-bl-md bg-surface p-3.5">
               <ActivityIndicator size="small" color={BrandColors.primary} />
-              <Text className="text-sm text-foreground/50">O professor está escrevendo…</Text>
+              <Text className="text-sm text-foreground/50">{t.professor.typing}</Text>
             </View>
           )}
 
@@ -161,19 +157,19 @@ export default function ProfessorScreen() {
               <View className="mb-1 flex-row items-center gap-2">
                 <Ionicons name="hourglass" size={18} color={BrandColors.goldDark} />
                 <Text className="font-bold text-foreground">
-                  Suas perguntas de hoje acabaram
+                  {t.professor.limitTitle}
                 </Text>
               </View>
               <Text className="mb-4 text-sm text-foreground/60">
                 {isPremium
-                  ? `Você usou as ${limit} perguntas de hoje. Volte amanhã!`
-                  : `O plano gratuito inclui ${FREE_DAILY_LIMIT} perguntas por dia. Assine o Premium e faça até ${PREMIUM_DAILY_LIMIT} perguntas diárias.`}
+                  ? t.professor.limitPremium(limit)
+                  : t.professor.limitFree(FREE_DAILY_LIMIT, PREMIUM_DAILY_LIMIT)}
               </Text>
               {!isPremium && (
                 <Pressable
                   onPress={() => router.push('/premium' as never)}
                   className="items-center rounded-full bg-gold py-3 active:opacity-80">
-                  <Text className="font-bold text-ink">Assinar Premium</Text>
+                  <Text className="font-bold text-ink">{t.professor.goPremium}</Text>
                 </Pressable>
               )}
             </View>
@@ -185,7 +181,7 @@ export default function ProfessorScreen() {
           <TextInput
             value={input}
             onChangeText={setInput}
-            placeholder={limitReached ? 'Limite diário atingido' : 'Escreva sua dúvida…'}
+            placeholder={limitReached ? t.professor.limitPlaceholder : t.professor.inputPlaceholder}
             placeholderTextColor={colors.muted}
             editable={!limitReached && !loading}
             multiline

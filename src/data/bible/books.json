@@ -3,6 +3,7 @@
     "abbrev": "gn",
     "name": "Gênesis",
     "nameEn": "Genesis",
+    "nameEs": "Génesis",
     "testament": "AT",
     "chapters": 50
   },
@@ -10,6 +11,7 @@
     "abbrev": "ex",
     "name": "Êxodo",
     "nameEn": "Exodus",
+    "nameEs": "Éxodo",
     "testament": "AT",
     "chapters": 40
   },
@@ -17,6 +19,7 @@
     "abbrev": "lv",
     "name": "Levítico",
     "nameEn": "Leviticus",
+    "nameEs": "Levítico",
     "testament": "AT",
     "chapters": 27
   },
@@ -24,6 +27,7 @@
     "abbrev": "nm",
     "name": "Números",
     "nameEn": "Numbers",
+    "nameEs": "Números",
     "testament": "AT",
     "chapters": 36
   },
@@ -31,6 +35,7 @@
     "abbrev": "dt",
     "name": "Deuteronômio",
     "nameEn": "Deuteronomy",
+    "nameEs": "Deuteronomio",
     "testament": "AT",
     "chapters": 34
   },
@@ -38,6 +43,7 @@
     "abbrev": "js",
     "name": "Josué",
     "nameEn": "Joshua",
+    "nameEs": "Josué",
     "testament": "AT",
     "chapters": 24
   },
@@ -45,6 +51,7 @@
     "abbrev": "jz",
     "name": "Juízes",
     "nameEn": "Judges",
+    "nameEs": "Jueces",
     "testament": "AT",
     "chapters": 21
   },
@@ -52,6 +59,7 @@
     "abbrev": "rt",
     "name": "Rute",
     "nameEn": "Ruth",
+    "nameEs": "Rut",
     "testament": "AT",
     "chapters": 4
   },
@@ -59,6 +67,7 @@
     "abbrev": "1sm",
     "name": "1 Samuel",
     "nameEn": "1 Samuel",
+    "nameEs": "1 Samuel",
     "testament": "AT",
     "chapters": 31
   },
@@ -66,6 +75,7 @@
     "abbrev": "2sm",
     "name": "2 Samuel",
     "nameEn": "2 Samuel",
+    "nameEs": "2 Samuel",
     "testament": "AT",
     "chapters": 24
   },
@@ -73,6 +83,7 @@
     "abbrev": "1rs",
     "name": "1 Reis",
     "nameEn": "1 Kings",
+    "nameEs": "1 Reyes",
     "testament": "AT",
     "chapters": 22
   },
@@ -80,6 +91,7 @@
     "abbrev": "2rs",
     "name": "2 Reis",
     "nameEn": "2 Kings",
+    "nameEs": "2 Reyes",
     "testament": "AT",
     "chapters": 25
   },
@@ -87,6 +99,7 @@
     "abbrev": "1cr",
     "name": "1 Crônicas",
     "nameEn": "1 Chronicles",
+    "nameEs": "1 Crónicas",
     "testament": "AT",
     "chapters": 29
   },
@@ -94,6 +107,7 @@
     "abbrev": "2cr",
     "name": "2 Crônicas",
     "nameEn": "2 Chronicles",
+    "nameEs": "2 Crónicas",
     "testament": "AT",
     "chapters": 36
   },
@@ -101,6 +115,7 @@
     "abbrev": "ed",
     "name": "Esdras",
     "nameEn": "Ezra",
+    "nameEs": "Esdras",
     "testament": "AT",
     "chapters": 10
   },
@@ -108,6 +123,7 @@
     "abbrev": "ne",
     "name": "Neemias",
     "nameEn": "Nehemiah",
+    "nameEs": "Nehemías",
     "testament": "AT",
     "chapters": 13
   },
@@ -115,6 +131,7 @@
     "abbrev": "et",
     "name": "Ester",
     "nameEn": "Esther",
+    "nameEs": "Ester",
     "testament": "AT",
     "chapters": 10
   },
@@ -122,6 +139,7 @@
     "abbrev": "jó",
     "name": "Jó",
     "nameEn": "Job",
+    "nameEs": "Job",
     "testament": "AT",
     "chapters": 42
   },
@@ -129,6 +147,7 @@
     "abbrev": "sl",
     "name": "Salmos",
     "nameEn": "Psalms",
+    "nameEs": "Salmos",
     "testament": "AT",
     "chapters": 150
   },
@@ -136,6 +155,7 @@
     "abbrev": "pv",
     "name": "Provérbios",
     "nameEn": "Proverbs",
+    "nameEs": "Proverbios",
     "testament": "AT",
     "chapters": 31
   },
@@ -143,6 +163,7 @@
     "abbrev": "ec",
     "name": "Eclesiastes",
     "nameEn": "Ecclesiastes",
+    "nameEs": "Eclesiastés",
     "testament": "AT",
     "chapters": 12
   },
@@ -150,6 +171,7 @@
     "abbrev": "ct",
     "name": "Cânticos",
     "nameEn": "Song of Solomon",
+    "nameEs": "Cantares",
     "testament": "AT",
     "chapters": 8
   },
@@ -157,6 +179,7 @@
     "abbrev": "is",
     "name": "Isaías",
     "nameEn": "Isaiah",
+    "nameEs": "Isaías",
     "testament": "AT",
     "chapters": 66
   },
@@ -164,6 +187,7 @@
     "abbrev": "jr",
     "name": "Jeremias",
     "nameEn": "Jeremiah",
+    "nameEs": "Jeremías",
     "testament": "AT",
     "chapters": 52
   },
@@ -171,6 +195,7 @@
     "abbrev": "lm",
     "name": "Lamentações",
     "nameEn": "Lamentations",
+    "nameEs": "Lamentaciones",
     "testament": "AT",
     "chapters": 5
   },
@@ -178,6 +203,7 @@
     "abbrev": "ez",
     "name": "Ezequiel",
     "nameEn": "Ezekiel",
+    "nameEs": "Ezequiel",
     "testament": "AT",
     "chapters": 48
   },
@@ -185,6 +211,7 @@
     "abbrev": "dn",
     "name": "Daniel",
     "nameEn": "Daniel",
+    "nameEs": "Daniel",
     "testament": "AT",
     "chapters": 12
   },
@@ -192,6 +219,7 @@
     "abbrev": "os",
     "name": "Oséias",
     "nameEn": "Hosea",
+    "nameEs": "Oseas",
     "testament": "AT",
     "chapters": 14
   },
@@ -199,6 +227,7 @@
     "abbrev": "jl",
     "name": "Joel",
     "nameEn": "Joel",
+    "nameEs": "Joel",
     "testament": "AT",
     "chapters": 3
   },
@@ -206,6 +235,7 @@
     "abbrev": "am",
     "name": "Amós",
     "nameEn": "Amos",
+    "nameEs": "Amós",
     "testament": "AT",
     "chapters": 9
   },
@@ -213,6 +243,7 @@
     "abbrev": "ob",
     "name": "Obadias",
     "nameEn": "Obadiah",
+    "nameEs": "Abdías",
     "testament": "AT",
     "chapters": 1
   },
@@ -220,6 +251,7 @@
     "abbrev": "jn",
     "name": "Jonas",
     "nameEn": "Jonah",
+    "nameEs": "Jonás",
     "testament": "AT",
     "chapters": 4
   },
@@ -227,6 +259,7 @@
     "abbrev": "mq",
     "name": "Miquéias",
     "nameEn": "Micah",
+    "nameEs": "Miqueas",
     "testament": "AT",
     "chapters": 7
   },
@@ -234,6 +267,7 @@
     "abbrev": "na",
     "name": "Naum",
     "nameEn": "Nahum",
+    "nameEs": "Nahúm",
     "testament": "AT",
     "chapters": 3
   },
@@ -241,6 +275,7 @@
     "abbrev": "hc",
     "name": "Habacuque",
     "nameEn": "Habakkuk",
+    "nameEs": "Habacuc",
     "testament": "AT",
     "chapters": 3
   },
@@ -248,6 +283,7 @@
     "abbrev": "sf",
     "name": "Sofonias",
     "nameEn": "Zephaniah",
+    "nameEs": "Sofonías",
     "testament": "AT",
     "chapters": 3
   },
@@ -255,6 +291,7 @@
     "abbrev": "ag",
     "name": "Ageu",
     "nameEn": "Haggai",
+    "nameEs": "Hageo",
     "testament": "AT",
     "chapters": 2
   },
@@ -262,6 +299,7 @@
     "abbrev": "zc",
     "name": "Zacarias",
     "nameEn": "Zechariah",
+    "nameEs": "Zacarías",
     "testament": "AT",
     "chapters": 14
   },
@@ -269,6 +307,7 @@
     "abbrev": "ml",
     "name": "Malaquias",
     "nameEn": "Malachi",
+    "nameEs": "Malaquías",
     "testament": "AT",
     "chapters": 4
   },
@@ -276,6 +315,7 @@
     "abbrev": "mt",
     "name": "Mateus",
     "nameEn": "Matthew",
+    "nameEs": "Mateo",
     "testament": "NT",
     "chapters": 28
   },
@@ -283,6 +323,7 @@
     "abbrev": "mc",
     "name": "Marcos",
     "nameEn": "Mark",
+    "nameEs": "Marcos",
     "testament": "NT",
     "chapters": 16
   },
@@ -290,6 +331,7 @@
     "abbrev": "lc",
     "name": "Lucas",
     "nameEn": "Luke",
+    "nameEs": "Lucas",
     "testament": "NT",
     "chapters": 24
   },
@@ -297,6 +339,7 @@
     "abbrev": "jo",
     "name": "João",
     "nameEn": "John",
+    "nameEs": "Juan",
     "testament": "NT",
     "chapters": 21
   },
@@ -304,6 +347,7 @@
     "abbrev": "atos",
     "name": "Atos",
     "nameEn": "Acts",
+    "nameEs": "Hechos",
     "testament": "NT",
     "chapters": 28
   },
@@ -311,6 +355,7 @@
     "abbrev": "rm",
     "name": "Romanos",
     "nameEn": "Romans",
+    "nameEs": "Romanos",
     "testament": "NT",
     "chapters": 16
   },
@@ -318,6 +363,7 @@
     "abbrev": "1co",
     "name": "1 Coríntios",
     "nameEn": "1 Corinthians",
+    "nameEs": "1 Corintios",
     "testament": "NT",
     "chapters": 16
   },
@@ -325,6 +371,7 @@
     "abbrev": "2co",
     "name": "2 Coríntios",
     "nameEn": "2 Corinthians",
+    "nameEs": "2 Corintios",
     "testament": "NT",
     "chapters": 13
   },
@@ -332,6 +379,7 @@
     "abbrev": "gl",
     "name": "Gálatas",
     "nameEn": "Galatians",
+    "nameEs": "Gálatas",
     "testament": "NT",
     "chapters": 6
   },
@@ -339,6 +387,7 @@
     "abbrev": "ef",
     "name": "Efésios",
     "nameEn": "Ephesians",
+    "nameEs": "Efesios",
     "testament": "NT",
     "chapters": 6
   },
@@ -346,6 +395,7 @@
     "abbrev": "fp",
     "name": "Filipenses",
     "nameEn": "Philippians",
+    "nameEs": "Filipenses",
     "testament": "NT",
     "chapters": 4
   },
@@ -353,6 +403,7 @@
     "abbrev": "cl",
     "name": "Colossenses",
     "nameEn": "Colossians",
+    "nameEs": "Colosenses",
     "testament": "NT",
     "chapters": 4
   },
@@ -360,6 +411,7 @@
     "abbrev": "1ts",
     "name": "1 Tessalonicenses",
     "nameEn": "1 Thessalonians",
+    "nameEs": "1 Tesalonicenses",
     "testament": "NT",
     "chapters": 5
   },
@@ -367,6 +419,7 @@
     "abbrev": "2ts",
     "name": "2 Tessalonicenses",
     "nameEn": "2 Thessalonians",
+    "nameEs": "2 Tesalonicenses",
     "testament": "NT",
     "chapters": 3
   },
@@ -374,6 +427,7 @@
     "abbrev": "1tm",
     "name": "1 Timóteo",
     "nameEn": "1 Timothy",
+    "nameEs": "1 Timoteo",
     "testament": "NT",
     "chapters": 6
   },
@@ -381,6 +435,7 @@
     "abbrev": "2tm",
     "name": "2 Timóteo",
     "nameEn": "2 Timothy",
+    "nameEs": "2 Timoteo",
     "testament": "NT",
     "chapters": 4
   },
@@ -388,6 +443,7 @@
     "abbrev": "tt",
     "name": "Tito",
     "nameEn": "Titus",
+    "nameEs": "Tito",
     "testament": "NT",
     "chapters": 3
   },
@@ -395,6 +451,7 @@
     "abbrev": "fm",
     "name": "Filemom",
     "nameEn": "Philemon",
+    "nameEs": "Filemón",
     "testament": "NT",
     "chapters": 1
   },
@@ -402,6 +459,7 @@
     "abbrev": "hb",
     "name": "Hebreus",
     "nameEn": "Hebrews",
+    "nameEs": "Hebreos",
     "testament": "NT",
     "chapters": 13
   },
@@ -409,6 +467,7 @@
     "abbrev": "tg",
     "name": "Tiago",
     "nameEn": "James",
+    "nameEs": "Santiago",
     "testament": "NT",
     "chapters": 5
   },
@@ -416,6 +475,7 @@
     "abbrev": "1pe",
     "name": "1 Pedro",
     "nameEn": "1 Peter",
+    "nameEs": "1 Pedro",
     "testament": "NT",
     "chapters": 5
   },
@@ -423,6 +483,7 @@
     "abbrev": "2pe",
     "name": "2 Pedro",
     "nameEn": "2 Peter",
+    "nameEs": "2 Pedro",
     "testament": "NT",
     "chapters": 3
   },
@@ -430,6 +491,7 @@
     "abbrev": "1jo",
     "name": "1 João",
     "nameEn": "1 John",
+    "nameEs": "1 Juan",
     "testament": "NT",
     "chapters": 5
   },
@@ -437,6 +499,7 @@
     "abbrev": "2jo",
     "name": "2 João",
     "nameEn": "2 John",
+    "nameEs": "2 Juan",
     "testament": "NT",
     "chapters": 1
   },
@@ -444,6 +507,7 @@
     "abbrev": "3jo",
     "name": "3 João",
     "nameEn": "3 John",
+    "nameEs": "3 Juan",
     "testament": "NT",
     "chapters": 1
   },
@@ -451,6 +515,7 @@
     "abbrev": "jd",
     "name": "Judas",
     "nameEn": "Jude",
+    "nameEs": "Judas",
     "testament": "NT",
     "chapters": 1
   },
@@ -458,6 +523,7 @@
     "abbrev": "ap",
     "name": "Apocalipse",
     "nameEn": "Revelation",
+    "nameEs": "Apocalipsis",
     "testament": "NT",
     "chapters": 22
   }

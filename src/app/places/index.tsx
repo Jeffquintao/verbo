@@ -6,9 +6,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PremiumBadge } from '@/components/premium-badge';
 import { BrandColors } from '@/constants/colors';
+import { useTranslation } from '@/i18n';
 import { formatRef, PLACE_REGIONS, PLACES, type Place } from '@/constants/places';
 
 export default function PlacesScreen() {
+  const t = useTranslation();
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
@@ -23,7 +25,7 @@ export default function PlacesScreen() {
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
       <ScrollView contentContainerClassName="p-5 pb-10" showsVerticalScrollIndicator={false}>
         <View className="mb-4 flex-row items-center justify-between">
-          <Text className="text-2xl font-bold text-foreground">Locais bíblicos</Text>
+          <Text className="text-2xl font-bold text-foreground">{t.places.title}</Text>
           <PremiumBadge />
         </View>
 
@@ -33,7 +35,7 @@ export default function PlacesScreen() {
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder="Buscar local…"
+            placeholder={t.places.searchPlaceholder}
             placeholderTextColor={BrandColors.muted}
             className="flex-1 py-3.5 text-base text-foreground"
           />
@@ -57,7 +59,7 @@ export default function PlacesScreen() {
         {filtered.length === 0 && (
           <View className="mt-16 items-center">
             <Ionicons name="location-outline" size={40} color={BrandColors.muted} />
-            <Text className="mt-3 text-foreground/50">Nenhum local encontrado.</Text>
+            <Text className="mt-3 text-foreground/50">{t.places.noResults}</Text>
           </View>
         )}
       </ScrollView>

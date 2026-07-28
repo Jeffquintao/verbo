@@ -12,10 +12,10 @@ export type RankPlayer = {
 };
 
 export const DIVISIONS = [
-  { name: 'Bronze', range: '0–499', color: '#CD7F32' },
-  { name: 'Prata', range: '500–999', color: '#9CA3AF' },
-  { name: 'Ouro', range: '1k–2.4k', color: '#D4AF37' },
-  { name: 'Diamante', range: '2.5k+', color: '#60A5FA' },
+  { key: 'bronze' as const, range: '0–499', color: '#CD7F32' },
+  { key: 'silver' as const, range: '500–999', color: '#9CA3AF' },
+  { key: 'gold' as const, range: '1k–2.4k', color: '#D4AF37' },
+  { key: 'diamond' as const, range: '2.5k+', color: '#60A5FA' },
 ];
 
 export const RANKING: RankPlayer[] = [
@@ -30,7 +30,7 @@ export const RANKING: RankPlayer[] = [
 /** Posição do usuário (placeholder). */
 export const MY_RANK = {
   pos: 14,
-  division: 'Ouro',
+  divisionKey: 'gold' as const,
   points: 1120,
   toTop10: 230,
 };

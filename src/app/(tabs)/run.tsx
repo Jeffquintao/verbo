@@ -4,13 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { ScreenHeader } from '@/components/screen-header';
+import { useTranslation } from '@/i18n';
 import { BrandColors } from '@/constants/colors';
 import { useTalentsStore } from '@/store/useTalentsStore';
 
 const REWARDS = [
-  { km: 1, icon: 'diamond' as const, title: '+50 Talentos', value: '+50' },
-  { km: 5, icon: 'star' as const, title: '1 dia Premium grátis', value: 'A cada 5 km' },
-  { km: 10, icon: 'book' as const, title: 'Devocional exclusivo', value: '800' },
+  { km: 1, icon: 'diamond' as const, key: 'rewardTalents' as const, value: '+50' },
+  { km: 5, icon: 'star' as const, key: 'rewardPremiumDay' as const, value: '5 km' },
+  { km: 10, icon: 'book' as const, key: 'rewardDevotional' as const, value: '800' },
 ];
 
 const TALENTS_PER_KM = 50;
@@ -36,6 +37,7 @@ function formatTime(sec: number): string {
 }
 
 export default function RunScreen() {
+  const t = useTranslation();
   const earn = useTalentsStore((s) => s.earn);
   const talents = useTalentsStore((s) => s.balance);
   const [tracking, setTracking] = useState(false);
@@ -57,7 +59,7 @@ export default function RunScreen() {
   async function startRun() {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permissão necessária', 'Permita o acesso à localização para registrar sua corrida.');
+      Alert.alert(t.run.permissionTitle, t.run.permissionBody);
       return;
     }
     setDistanceKm(0);
@@ -105,8 +107,8 @@ export default function RunScreen() {
   return (
     <View className="flex-1 bg-ink">
       <ScreenHeader
-        title="Corrida da Fé"
-        subtitle="Ganhe Talentos por km"
+        title={t.run.title}
+        subtitle={t.run.subtitle}
         right={
           <View className="flex-row items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5">
             <Ionicons name="diamond" size={14} color={BrandColors.gold} />
@@ -119,12 +121,12 @@ export default function RunScreen() {
         {/* Painel de sessão (verde) */}
         <View className="mb-6 rounded-3xl border border-green-800 bg-green-950 p-5">
           <View className="mb-4 flex-row justify-around">
-            <Stat value={distanceKm.toFixed(1)} label="km hoje" />
-            <Stat value={formatTime(elapsed)} label="tempo" />
-            <Stat value={pace > 0 ? pace.toFixed(2).replace('.', ':') : '0:00'} label="ritmo/km" />
+            <Stat value={distanceKm.toFixed(1)} label={t.run.kmToday} />
+            <Stat value={formatTime(elapsed)} label={t.run.time} />
+            <Stat value={pace > 0 ? pace.toFixed(2).replace('.', ':') : '0:00'} label={t.run.pace} />
           </View>
 
-          <Text className="mb-2 text-xs text-white/50">Progresso da sessão</Text>
+          <Text className="mb-2 text-xs text-white/50">{t.run.sessionProgress}</Text>
           <View className="mb-4 flex-row gap-2">
             {milestones.map((m) => {
               const done = m <= kmDone;
@@ -154,14 +156,14 @@ export default function RunScreen() {
             }`}>
             <Ionicons name={tracking ? 'pause' : 'play'} size={20} color="#052e16" />
             <Text className="text-base font-bold text-green-950">
-              {tracking ? 'Pausar corrida' : 'Iniciar corrida'}
+              {tracking ? t.run.pause : t.run.start}
             </Text>
           </Pressable>
         </View>
 
         {/* Recompensas */}
         <Text className="mb-3 text-xs font-bold uppercase tracking-wider text-white/40">
-          Recompensas por km
+          {t.run.rewards}
         </Text>
         {REWARDS.map((r) => {
           const unlocked = distanceKm >= r.km;
@@ -174,14 +176,14 @@ export default function RunScreen() {
                   <Ionicons name={r.icon} size={18} color={BrandColors.gold} />
                 </View>
                 <View>
-                  <Text className="font-semibold text-white">{r.title}</Text>
-                  <Text className="text-xs text-white/40">A cada {r.km} km</Text>
+                  <Text className="font-semibold text-white">{t.run[r.key]}</Text>
+                  <Text className="text-xs text-white/40">{t.run.everyKm(r.km)}</Text>
                 </View>
               </View>
               {unlocked ? (
                 <View className="flex-row items-center gap-1">
                   <Ionicons name="checkmark-circle" size={16} color="#4ade80" />
-                  <Text className="text-xs font-semibold text-green-400">Desbloqueado</Text>
+                  <Text className="text-xs font-semibold text-green-400">{t.run.unlocked}</Text>
                 </View>
               ) : (
                 <Text className="font-bold text-gold-light">{r.value}</Text>

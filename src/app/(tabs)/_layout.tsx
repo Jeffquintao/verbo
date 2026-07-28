@@ -3,9 +3,11 @@ import { Tabs } from 'expo-router';
 
 import { BrandColors } from '@/constants/colors';
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 
 export default function TabsLayout() {
   const { colors } = useTheme();
+  const t = useTranslation();
 
   return (
     <Tabs
@@ -22,28 +24,28 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Início',
+          title: t.tabs.home,
           tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="bible"
         options={{
-          title: 'Bíblia',
+          title: t.tabs.bible,
           tabBarIcon: ({ color, size }) => <Ionicons name="book" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="run"
         options={{
-          title: 'Correr',
+          title: t.tabs.run,
           tabBarIcon: ({ color, size }) => <Ionicons name="walk" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="midia"
         options={{
-          title: 'Mídia',
+          title: t.tabs.media,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="play-circle" size={size} color={color} />
           ),
@@ -52,7 +54,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Perfil',
+          title: t.tabs.profile,
           tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
         }}
       />

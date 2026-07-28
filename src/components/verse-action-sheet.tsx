@@ -5,6 +5,7 @@ import { Modal, Pressable, Text, TextInput, View } from 'react-native';
 import { BrandColors } from '@/constants/colors';
 import { themeVars } from '@/constants/themes';
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 import { HIGHLIGHT_COLORS, useLibraryStore, verseKey } from '@/store/useLibraryStore';
 
 type Props = {
@@ -20,6 +21,7 @@ export function VerseActionSheet({ bookIndex, chapter, verse, reference, onClose
   const addNote = useLibraryStore((s) => s.addNote);
   const highlights = useLibraryStore((s) => s.highlights);
   const { scheme } = useTheme();
+  const t = useTranslation();
   const [noteText, setNoteText] = useState('');
   const [noteMode, setNoteMode] = useState(false);
 
@@ -69,7 +71,7 @@ export function VerseActionSheet({ bookIndex, chapter, verse, reference, onClose
                 multiline
                 value={noteText}
                 onChangeText={setNoteText}
-                placeholder="Escreva sua nota…"
+                placeholder={t.verseSheet.writeNote}
                 placeholderTextColor={BrandColors.muted}
                 className="min-h-24 rounded-2xl bg-surface p-4 text-base text-foreground"
                 textAlignVertical="top"
@@ -77,17 +79,17 @@ export function VerseActionSheet({ bookIndex, chapter, verse, reference, onClose
               <Pressable
                 onPress={saveNote}
                 className="mt-3 items-center rounded-full bg-primary py-3.5 active:opacity-80">
-                <Text className="font-bold text-white">Salvar nota</Text>
+                <Text className="font-bold text-white">{t.verseSheet.saveNote}</Text>
               </Pressable>
             </View>
           ) : (
             <View className="flex-row gap-3">
               <ActionButton
                 icon="create-outline"
-                label="Adicionar nota"
+                label={t.verseSheet.addNote}
                 onPress={() => setNoteMode(true)}
               />
-              <ActionButton icon="close-outline" label="Fechar" onPress={close} />
+              <ActionButton icon="close-outline" label={t.common.close} onPress={close} />
             </View>
           )}
         </Pressable>

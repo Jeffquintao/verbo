@@ -8,11 +8,13 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { themeVars } from '@/constants/themes';
 import { useAuthInit } from '@/hooks/use-auth-init';
+import { useLocaleSync } from '@/hooks/use-locale-sync';
 import { useTheme } from '@/hooks/use-theme';
 
 export default function RootLayout() {
   const { scheme } = useTheme();
   useAuthInit();
+  useLocaleSync();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

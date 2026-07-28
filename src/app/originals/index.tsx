@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PremiumBadge } from '@/components/premium-badge';
 import { BrandColors } from '@/constants/colors';
+import { useTranslation } from '@/i18n';
 import {
   getStrong,
   INTERLINEAR_VERSES,
@@ -16,6 +17,7 @@ type Lang = 'NT' | 'AT';
 
 export default function OriginalsScreen() {
   const [lang, setLang] = useState<Lang>('NT');
+  const t = useTranslation();
   const [selected, setSelected] = useState<InterlinearWord | null>(null);
 
   const verse = useMemo(
@@ -40,7 +42,7 @@ export default function OriginalsScreen() {
             className="h-10 w-10 items-center justify-center rounded-full active:opacity-60">
             <Ionicons name="arrow-back" size={22} color="#fff" />
           </Pressable>
-          <Text className="text-base font-bold text-white">Textos originais</Text>
+          <Text className="text-base font-bold text-white">{t.originals.title}</Text>
           <PremiumBadge />
         </View>
       </View>
@@ -54,12 +56,12 @@ export default function OriginalsScreen() {
               onPress={() => switchLang(l)}
               className={`rounded-full px-4 py-2 ${lang === l ? 'bg-primary' : 'bg-surface'}`}>
               <Text className={lang === l ? 'font-semibold text-white' : 'font-medium text-foreground'}>
-                {l === 'NT' ? 'Grego (NT)' : 'Hebraico (AT)'}
+                {l === 'NT' ? t.originals.greek : t.originals.hebrew}
               </Text>
             </Pressable>
           ))}
           <View className="justify-center rounded-full bg-surface/60 px-4 py-2">
-            <Text className="font-medium text-foreground/40">Interlinear</Text>
+            <Text className="font-medium text-foreground/40">{t.originals.interlinear}</Text>
           </View>
         </View>
 
@@ -69,7 +71,7 @@ export default function OriginalsScreen() {
           <Text className="text-xs text-foreground/50">{verse.source}</Text>
         </View>
         <Text className="mb-4 text-xs uppercase tracking-wider text-foreground/40">
-          {isHebrew ? 'Leitura da direita para a esquerda' : 'Toque numa palavra para ver o significado'}
+          {isHebrew ? t.originals.rtlHint : t.originals.tapHint}
         </Text>
 
         {/* Palavras (interlinear) */}
@@ -101,17 +103,17 @@ export default function OriginalsScreen() {
               <Text className="font-semibold text-gold-light">Strong {strong.id}</Text>
             </View>
             <View className="p-5">
-              <StrongRow label="Significado" value={strong.meaning} />
-              <StrongRow label="Raiz" value={strong.root} />
-              <StrongRow label="Gramática" value={strong.grammar} />
-              <StrongRow label="Ocorrências" value={strong.occurrences} last />
+              <StrongRow label={t.originals.meaning} value={strong.meaning} />
+              <StrongRow label={t.originals.root} value={strong.root} />
+              <StrongRow label={t.originals.grammar} value={strong.grammar} />
+              <StrongRow label={t.originals.occurrences} value={strong.occurrences} last />
             </View>
           </View>
         ) : (
           <View className="items-center rounded-3xl border border-dashed border-border/15 p-8">
             <Ionicons name="hand-left-outline" size={32} color={BrandColors.muted} />
             <Text className="mt-2 text-center text-foreground/50">
-              Toque numa palavra acima para ver o dicionário Strong, a raiz e a análise gramatical.
+              {t.originals.emptyHint}
             </Text>
           </View>
         )}

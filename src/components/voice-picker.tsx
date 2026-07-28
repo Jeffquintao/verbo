@@ -6,18 +6,20 @@ import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View } from 'rea
 import { BrandColors } from '@/constants/colors';
 import { themeVars } from '@/constants/themes';
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 import { getPortugueseVoices, type TtsVoice, VOICE_SAMPLE, voiceLabel } from '@/services/tts';
 import { useAudioSettings } from '@/store/useAudioSettings';
 
 const PITCH_PRESETS = [
-  { label: 'Grave', value: 0.85 },
-  { label: 'Natural', value: 0.95 },
-  { label: 'Médio', value: 1.0 },
-  { label: 'Claro', value: 1.1 },
+  { labelKey: 'toneLow' as const, value: 0.85 },
+  { labelKey: 'toneNatural' as const, value: 0.95 },
+  { labelKey: 'toneMid' as const, value: 1.0 },
+  { labelKey: 'toneHigh' as const, value: 1.1 },
 ];
 
 export function VoicePicker({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { scheme, colors } = useTheme();
+  const t = useTranslation();
   const voiceId = useAudioSettings((s) => s.voiceId);
   const pitch = useAudioSettings((s) => s.pitch);
   const setVoice = useAudioSettings((s) => s.setVoice);
@@ -61,27 +63,27 @@ export function VoicePicker({ visible, onClose }: { visible: boolean; onClose: (
           className="max-h-[72%] rounded-t-3xl bg-background p-5 pb-8"
           onPress={(e) => e.stopPropagation()}>
           <View className="mb-4 h-1 w-10 self-center rounded-full bg-foreground/15" />
-          <Text className="mb-1 text-lg font-bold text-foreground">Escolher voz</Text>
+          <Text className="mb-1 text-lg font-bold text-foreground">{t.audio.voicePickerTitle}</Text>
           <Text className="mb-4 text-xs text-foreground/50">
-            Toque para ouvir e selecionar. Vozes “Premium” soam mais naturais.
+            {t.audio.voicePickerHint}
           </Text>
 
           {/* Tom da voz */}
           <Text className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/40">
-            Tom da voz
+            {t.audio.voiceTone}
           </Text>
           <View className="mb-4 flex-row gap-2">
             {PITCH_PRESETS.map((pp) => {
               const active = Math.abs(pitch - pp.value) < 0.001;
               return (
                 <Pressable
-                  key={pp.label}
+                  key={pp.labelKey}
                   onPress={() => choosePitch(pp.value)}
                   className={`flex-1 items-center rounded-xl py-2.5 ${
                     active ? 'bg-primary' : 'bg-surface'
                   }`}>
                   <Text className={active ? 'font-semibold text-white' : 'text-foreground/60'}>
-                    {pp.label}
+                    {t.audio[pp.labelKey]}
                   </Text>
                 </Pressable>
               );
@@ -89,15 +91,14 @@ export function VoicePicker({ visible, onClose }: { visible: boolean; onClose: (
           </View>
 
           <Text className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground/40">
-            Vozes disponíveis
+            {t.audio.availableVoices}
           </Text>
 
           {loading ? (
             <ActivityIndicator color={colors.foreground} style={{ marginVertical: 32 }} />
           ) : voices.length === 0 ? (
             <Text className="my-8 text-center text-foreground/50">
-              Nenhuma voz em português encontrada no aparelho. Você pode instalar vozes nas
-              configurações do sistema (Acessibilidade › Conteúdo falado).
+              {t.audio.noVoices}
             </Text>
           ) : (
             <ScrollView showsVerticalScrollIndicator={false}>

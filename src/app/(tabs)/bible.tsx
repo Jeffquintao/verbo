@@ -11,28 +11,27 @@ import { BrandColors } from '@/constants/colors';
 import { formatRef, placesInChapter } from '@/constants/places';
 import { themeVars } from '@/constants/themes';
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 import {
-  BIBLE_VERSIONS,
   bookIndexByAbbrev,
   bookName,
   getBook,
   getChapterVerses,
   nextChapter,
   prevChapter,
+  versionsForLocale,
 } from '@/services/bible';
 import { useBibleStore } from '@/store/useBibleStore';
 import { useLibraryStore, verseKey } from '@/store/useLibraryStore';
+import { useLocaleStore } from '@/store/useLocaleStore';
 
 type Tab = 'leitura' | 'comparar' | 'notas';
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'leitura', label: 'Leitura' },
-  { id: 'comparar', label: 'Comparar' },
-  { id: 'notas', label: 'Notas' },
-];
 
 export default function BibleScreen() {
   const insets = useSafeAreaInsets();
-  const { scheme, colors } = useTheme();
+  const { scheme } = useTheme();
+  const t = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
   const lastRead = useBibleStore((s) => s.lastRead);
   const setLastRead = useBibleStore((s) => s.setLastRead);
   const version = useBibleStore((s) => s.version);
@@ -45,6 +44,7 @@ export default function BibleScreen() {
   const [showPicker, setShowPicker] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
+  const versions = versionsForLocale(locale);
   const defaultBook = Math.max(0, bookIndexByAbbrev('jo'));
   const bookIndex = lastRead?.bookIndex ?? defaultBook;
   const chapterNum = lastRead?.chapter ?? 1;
@@ -55,6 +55,12 @@ export default function BibleScreen() {
   const verses = getChapterVerses(version, bookIndex, chapterNum);
   const prev = prevChapter(bookIndex, chapterNum);
   const next = nextChapter(bookIndex, chapterNum);
+
+  const TABS: { id: Tab; label: string }[] = [
+    { id: 'leitura', label: t.bible.reading },
+    { id: 'comparar', label: t.bible.compare },
+    { id: 'notas', label: t.bible.notes },
+  ];
 
   function goTo(pos: { bookIndex: number; chapter: number } | null) {
     if (pos) setLastRead(pos);
@@ -71,14 +77,14 @@ export default function BibleScreen() {
             onPress={() => setShowPicker(true)}
             className="flex-row items-center gap-1.5 active:opacity-70">
             <Text className="text-2xl font-bold text-white">
-              {meta.name} {chapterNum}
+              {bookName(meta, locale)} {chapterNum}
             </Text>
             <Ionicons name="chevron-down" size={20} color="#fff" />
           </Pressable>
 
           <View className="flex-row items-center gap-2">
             <View className="flex-row rounded-full bg-white/10 p-0.5">
-              {BIBLE_VERSIONS.map((v) => (
+              {versions.map((v) => (
                 <Pressable
                   key={v.id}
                   onPress={() => setVersion(v.id)}
@@ -101,12 +107,12 @@ export default function BibleScreen() {
 
       {/* Sub-abas */}
       <View className="flex-row border-b border-foreground/10">
-        {TABS.map((t) => (
-          <Pressable key={t.id} onPress={() => setTab(t.id)} className="flex-1 items-center py-3">
-            <Text className={`font-semibold ${tab === t.id ? 'text-primary' : 'text-foreground/50'}`}>
-              {t.label}
+        {TABS.map((tb) => (
+          <Pressable key={tb.id} onPress={() => setTab(tb.id)} className="flex-1 items-center py-3">
+            <Text className={`font-semibold ${tab === tb.id ? 'text-primary' : 'text-foreground/50'}`}>
+              {tb.label}
             </Text>
-            {tab === t.id && (
+            {tab === tb.id && (
               <View className="absolute bottom-0 h-0.5 w-14 rounded-full bg-primary" />
             )}
           </Pressable>
@@ -150,7 +156,7 @@ export default function BibleScreen() {
         bookIndex={bookIndex}
         chapter={chapterNum}
         verse={selectedVerse}
-        reference={`${meta.name} ${chapterNum}:${selectedVerse ?? ''}`}
+        reference={`${bookName(meta, locale)} ${chapterNum}:${selectedVerse ?? ''}`}
         onClose={() => setSelectedVerse(null)}
       />
       <BookChapterPicker
@@ -172,11 +178,15 @@ export default function BibleScreen() {
           <Pressable className="rounded-t-3xl bg-background p-5 pb-8" onPress={(e) => e.stopPropagation()}>
             <View className="mb-4 h-1 w-10 self-center rounded-full bg-foreground/15" />
             {[
-              { icon: 'school', label: 'Perguntar ao professor', href: '/professor' },
-              { icon: 'headset', label: 'Ouvir este capítulo', href: `/audio/${meta.abbrev}/${chapterNum}` },
-              { icon: 'search', label: 'Buscar', href: '/bible/search' },
-              { icon: 'language', label: 'Textos originais', href: '/originals' },
-              { icon: 'location', label: 'Locais bíblicos', href: '/places' },
+              { icon: 'school', label: t.bible.askProfessor, href: '/professor' },
+              {
+                icon: 'headset',
+                label: t.bible.listenChapter,
+                href: `/audio/${meta.abbrev}/${chapterNum}`,
+              },
+              { icon: 'search', label: t.common.search, href: '/bible/search' },
+              { icon: 'language', label: t.bible.originalTexts, href: '/originals' },
+              { icon: 'location', label: t.bible.biblicalPlaces, href: '/places' },
             ].map((item) => (
               <Pressable
                 key={item.label}
@@ -211,6 +221,7 @@ function LeituraTab({
   notes: { bookIndex: number; chapter: number; verse: number }[];
   onSelectVerse: (v: number) => void;
 }) {
+  const t = useTranslation();
   const places = placesInChapter(getBook(bookIndex)?.abbrev ?? '', chapterNum).slice(0, 1);
   return (
     <>
@@ -243,7 +254,7 @@ function LeituraTab({
           <View className="mb-2 flex-row items-center gap-1.5">
             <Ionicons name="location" size={14} color={BrandColors.goldDark} />
             <Text className="text-xs font-bold uppercase tracking-wider text-gold-dark">
-              Local mencionado neste capítulo
+              {t.bible.placeInChapter}
             </Text>
           </View>
           <View className="flex-row items-center gap-3">
@@ -259,7 +270,7 @@ function LeituraTab({
               </Text>
             </View>
             <View className="rounded-full bg-gold px-3 py-1.5">
-              <Text className="text-xs font-bold text-ink">Ver</Text>
+              <Text className="text-xs font-bold text-ink">{t.bible.view}</Text>
             </View>
           </View>
         </Pressable>
@@ -269,43 +280,53 @@ function LeituraTab({
 }
 
 function CompararTab({ bookIndex, chapterNum }: { bookIndex: number; chapterNum: number }) {
-  const acf = getChapterVerses('ACF', bookIndex, chapterNum);
-  const nvi = getChapterVerses('NVI', bookIndex, chapterNum);
-  const count = Math.max(acf.length, nvi.length);
+  const t = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
+  // Compara as versões disponíveis no idioma atual (uma ou duas).
+  const versions = versionsForLocale(locale);
+  const columns = versions.map((v) => ({
+    label: v.label,
+    verses: getChapterVerses(v.id, bookIndex, chapterNum),
+  }));
+  const count = Math.max(...columns.map((c) => c.verses.length), 0);
+
   return (
     <>
       {Array.from({ length: count }, (_, i) => (
         <View key={i} className="mb-3 rounded-2xl bg-surface p-4">
-          <Text className="mb-2 text-xs font-bold text-primary">Versículo {i + 1}</Text>
-          <View className="mb-2">
-            <Text className="mb-0.5 text-[11px] font-bold text-foreground/40">ACF</Text>
-            <Text className="text-sm leading-6 text-foreground/90">{acf[i] ?? '—'}</Text>
-          </View>
-          <View>
-            <Text className="mb-0.5 text-[11px] font-bold text-foreground/40">NVI</Text>
-            <Text className="text-sm leading-6 text-foreground/90">{nvi[i] ?? '—'}</Text>
-          </View>
+          <Text className="mb-2 text-xs font-bold text-primary">{t.bible.verse(i + 1)}</Text>
+          {columns.map((col, ci) => (
+            <View key={col.label} className={ci < columns.length - 1 ? 'mb-2' : undefined}>
+              <Text className="mb-0.5 text-[11px] font-bold text-foreground/40">{col.label}</Text>
+              <Text className="text-sm leading-6 text-foreground/90">{col.verses[i] ?? '—'}</Text>
+            </View>
+          ))}
         </View>
       ))}
       <View className="mt-1 items-center rounded-2xl border border-dashed border-gold/40 p-4">
-        <Text className="text-sm font-semibold text-gold-dark">+ 6 versões no Premium</Text>
-        <Text className="text-xs text-foreground/50">NAA, NVT, KJV, ESV e mais</Text>
+        <Text className="text-sm font-semibold text-gold-dark">{t.bible.morePremiumVersions}</Text>
+        <Text className="text-xs text-foreground/50">{t.bible.morePremiumVersionsSub}</Text>
       </View>
     </>
   );
 }
 
 function NotasTab({ bookIndex, onOpen }: { bookIndex: number; onOpen: (chapter: number) => void }) {
+  const t = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
   const notes = useLibraryStore((s) => s.notes).filter((n) => n.bookIndex === bookIndex);
   const removeNote = useLibraryStore((s) => s.removeNote);
   const book = getBook(bookIndex);
+  const label = book ? bookName(book, locale) : '';
 
   if (notes.length === 0) {
     return (
       <View className="mt-16 items-center">
         <Ionicons name="create-outline" size={40} color={BrandColors.muted} />
         <Text className="mt-3 text-center text-foreground/50">
-          Sem notas em {book?.name}.{'\n'}Toque num versículo na aba Leitura para anotar.
+          {t.bible.noNotesIn(label)}
+          {'\n'}
+          {t.bible.noNotesHint}
         </Text>
       </View>
     );
@@ -318,7 +339,7 @@ function NotasTab({ bookIndex, onOpen }: { bookIndex: number; onOpen: (chapter: 
           <View className="mb-2 flex-row items-center justify-between">
             <Pressable onPress={() => onOpen(n.chapter)}>
               <Text className="text-xs font-bold text-primary">
-                {book?.name} {n.chapter}:{n.verse}
+                {label} {n.chapter}:{n.verse}
               </Text>
             </Pressable>
             <Pressable onPress={() => removeNote(n.id)} className="active:opacity-60">
@@ -341,6 +362,7 @@ function NavButton({
   disabled: boolean;
   onPress: () => void;
 }) {
+  const t = useTranslation();
   return (
     <Pressable
       onPress={onPress}
@@ -352,7 +374,7 @@ function NavButton({
         <Ionicons name="chevron-back" size={16} color={disabled ? BrandColors.muted : '#fff'} />
       )}
       <Text className={`text-sm font-semibold ${disabled ? 'text-foreground/30' : 'text-white'}`}>
-        {dir === 'prev' ? 'Anterior' : 'Próximo'}
+        {dir === 'prev' ? t.bible.previous : t.bible.next}
       </Text>
       {dir === 'next' && (
         <Ionicons name="chevron-forward" size={16} color={disabled ? BrandColors.muted : '#fff'} />

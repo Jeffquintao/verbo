@@ -7,6 +7,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { VoicePicker } from '@/components/voice-picker';
+import { useTranslation } from '@/i18n';
 import { BrandColors } from '@/constants/colors';
 import {
   bookIndexByAbbrev,
@@ -19,6 +20,7 @@ import {
 import { isCloudTtsEnabled, synthesizeToBase64 } from '@/services/cloudTts';
 import { getPortugueseVoices, pickDefaultVoice } from '@/services/tts';
 import { useAudioSettings } from '@/store/useAudioSettings';
+import { useLocaleStore } from '@/store/useLocaleStore';
 import { useBibleStore } from '@/store/useBibleStore';
 
 const SPEEDS = [0.75, 1.0, 1.25, 1.5];
@@ -31,6 +33,8 @@ export default function AudioPlayerScreen() {
   const pitch = useAudioSettings((s) => s.pitch);
   const setVoice = useAudioSettings((s) => s.setVoice);
   const [showVoices, setShowVoices] = useState(false);
+  const t = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
 
   const bookIndex = bookIndexByAbbrev(book);
   const chapterNum = Number(chapter) || 1;
@@ -212,7 +216,7 @@ export default function AudioPlayerScreen() {
   if (!meta) {
     return (
       <SafeAreaView className="flex-1 items-center justify-center bg-ink">
-        <Text className="text-white/60">Capítulo não encontrado.</Text>
+        <Text className="text-white/60">{t.audio.chapterNotFound}</Text>
       </SafeAreaView>
     );
   }
@@ -230,7 +234,7 @@ export default function AudioPlayerScreen() {
           className="h-10 w-10 items-center justify-center rounded-full active:opacity-60">
           <Ionicons name="chevron-down" size={24} color="#fff" />
         </Pressable>
-        <Text className="text-sm font-semibold text-white/70">Bíblia em Áudio</Text>
+        <Text className="text-sm font-semibold text-white/70">{t.audio.title}</Text>
         <View className="w-10" />
       </View>
 
@@ -242,7 +246,7 @@ export default function AudioPlayerScreen() {
             <Text className="mt-2 font-bold text-white">{version}</Text>
           </View>
           <Text className="text-2xl font-bold text-white">
-            {bookName(meta, version)} — Capítulo {chapterNum}
+            {bookName(meta, locale)} — {t.audio.chapter(chapterNum)}
           </Text>
           <Text className="mt-1 text-center text-sm text-white/50">
             {version === 'NVI' ? 'Nova Versão Internacional' : 'Almeida Corrigida Fiel'} · Narração TTS
@@ -255,7 +259,7 @@ export default function AudioPlayerScreen() {
         </View>
         <View className="mb-6 flex-row justify-between">
           <Text className="text-xs text-white/50">
-            Versículo {idx + 1}/{verses.length}
+            {t.audio.verseOf(idx + 1, verses.length)}
           </Text>
           {sleepLeft > 0 && (
             <Text className="text-xs text-gold-light">
@@ -294,14 +298,14 @@ export default function AudioPlayerScreen() {
             className="flex-row items-center gap-1.5 rounded-full bg-white/10 px-4 py-2.5 active:opacity-70">
             <Ionicons name="moon" size={16} color={sleepMin > 0 ? BrandColors.gold : '#fff'} />
             <Text className="font-semibold text-white">
-              {sleepMin > 0 ? `${sleepMin}min` : 'Sleep'}
+              {sleepMin > 0 ? `${sleepMin}min` : t.audio.sleep}
             </Text>
           </Pressable>
           <Pressable
             onPress={() => setShowVoices(true)}
             className="flex-row items-center gap-1.5 rounded-full bg-white/10 px-4 py-2.5 active:opacity-70">
             <Ionicons name="person-circle" size={16} color="#fff" />
-            <Text className="font-semibold text-white">Voz</Text>
+            <Text className="font-semibold text-white">{t.audio.voice}</Text>
           </Pressable>
         </View>
 
@@ -315,7 +319,7 @@ export default function AudioPlayerScreen() {
             }`}>
             <Ionicons name="chevron-back" size={16} color={prev ? '#fff' : 'rgba(255,255,255,0.3)'} />
             <Text className={prev ? 'font-semibold text-white' : 'font-semibold text-white/30'}>
-              Cap. anterior
+              {t.audio.prevChapter}
             </Text>
           </Pressable>
           <Pressable
@@ -325,7 +329,7 @@ export default function AudioPlayerScreen() {
               next ? 'bg-white/10 active:opacity-70' : 'bg-white/5'
             }`}>
             <Text className={next ? 'font-semibold text-white' : 'font-semibold text-white/30'}>
-              Próximo cap.
+              {t.audio.nextChapter}
             </Text>
             <Ionicons name="chevron-forward" size={16} color={next ? '#fff' : 'rgba(255,255,255,0.3)'} />
           </Pressable>
@@ -333,7 +337,7 @@ export default function AudioPlayerScreen() {
 
         {/* Lista de versículos */}
         <Text className="mb-2 text-xs font-bold uppercase tracking-wider text-white/40">
-          Versículos
+          {t.audio.verses}
         </Text>
         {verses.map((text, i) => {
           const active = i === idx;

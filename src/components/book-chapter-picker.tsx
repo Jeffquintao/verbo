@@ -3,8 +3,10 @@ import { useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { themeVars } from '@/constants/themes';
+import { useTranslation } from '@/i18n';
 import { useTheme } from '@/hooks/use-theme';
-import { BOOKS } from '@/services/bible';
+import { useLocaleStore } from '@/store/useLocaleStore';
+import { BOOKS, bookName } from '@/services/bible';
 
 /** Seletor de livro → capítulo, em modal. */
 export function BookChapterPicker({
@@ -17,6 +19,8 @@ export function BookChapterPicker({
   onSelect: (bookIndex: number, chapter: number) => void;
 }) {
   const { scheme, colors } = useTheme();
+  const locale = useLocaleStore((s) => s.locale);
+  const t = useTranslation();
   const [bookIndex, setBookIndex] = useState<number | null>(null);
   const book = bookIndex != null ? BOOKS[bookIndex] : null;
 
@@ -42,7 +46,7 @@ export function BookChapterPicker({
                 <Pressable onPress={() => setBookIndex(null)} hitSlop={8} className="active:opacity-60">
                   <Ionicons name="arrow-back" size={22} color={colors.foreground} />
                 </Pressable>
-                <Text className="text-lg font-bold text-foreground">{book.name}</Text>
+                <Text className="text-lg font-bold text-foreground">{bookName(book, locale)}</Text>
               </View>
               <ScrollView showsVerticalScrollIndicator={false}>
                 <View className="flex-row flex-wrap gap-3 pb-6">
@@ -62,11 +66,11 @@ export function BookChapterPicker({
             </>
           ) : (
             <>
-              <Text className="mb-3 text-lg font-bold text-foreground">Escolher livro</Text>
+              <Text className="mb-3 text-lg font-bold text-foreground">{t.bible.chooseBook}</Text>
               <ScrollView showsVerticalScrollIndicator={false}>
                 {[
-                  { title: 'Antigo Testamento', items: ot },
-                  { title: 'Novo Testamento', items: nt },
+                  { title: t.common.oldTestament, items: ot },
+                  { title: t.common.newTestament, items: nt },
                 ].map((section) => (
                   <View key={section.title} className="mb-2">
                     <Text className="mb-2 mt-2 text-xs font-bold uppercase tracking-wider text-foreground/40">
@@ -78,7 +82,7 @@ export function BookChapterPicker({
                           key={b.abbrev}
                           onPress={() => setBookIndex(i)}
                           className="rounded-xl bg-surface px-3.5 py-2.5 active:opacity-70">
-                          <Text className="text-sm font-medium text-foreground">{b.name}</Text>
+                          <Text className="text-sm font-medium text-foreground">{bookName(b, locale)}</Text>
                         </Pressable>
                       ))}
                     </View>

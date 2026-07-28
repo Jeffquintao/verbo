@@ -5,10 +5,12 @@ import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n';
 import { signInWithGoogle } from '@/services/auth';
 
 export default function LoginScreen() {
   const { colors } = useTheme();
+  const t = useTranslation();
   const [loading, setLoading] = useState<'google' | 'apple' | null>(null);
 
   async function handleGoogle() {
@@ -17,14 +19,14 @@ export default function LoginScreen() {
       await signInWithGoogle();
       router.back();
     } catch (err) {
-      Alert.alert('Login com Google', err instanceof Error ? err.message : 'Falha no login.');
+      Alert.alert(t.auth.google, err instanceof Error ? err.message : t.common.somethingWentWrong);
     } finally {
       setLoading(null);
     }
   }
 
   function handleApple() {
-    Alert.alert('Em breve', 'O login com Apple será habilitado em breve.');
+    Alert.alert(t.common.soon, t.auth.appleSoon);
   }
 
   return (
@@ -43,7 +45,7 @@ export default function LoginScreen() {
             <Ionicons name="book" size={32} color="#fff" />
           </View>
           <Text className="text-3xl font-bold text-foreground">Verbo</Text>
-          <Text className="text-sm text-foreground/50">Entre para começar</Text>
+          <Text className="text-sm text-foreground/50">{t.auth.signInTitle}</Text>
         </View>
 
         {/* Google (principal) */}
@@ -56,7 +58,7 @@ export default function LoginScreen() {
           ) : (
             <>
               <Ionicons name="logo-google" size={22} color="#EA4335" />
-              <Text className="text-base font-semibold text-foreground">Continuar com Google</Text>
+              <Text className="text-base font-semibold text-foreground">{t.auth.google}</Text>
             </>
           )}
         </Pressable>
@@ -67,16 +69,16 @@ export default function LoginScreen() {
           disabled={loading !== null}
           className="mb-6 h-14 flex-row items-center justify-center gap-3 rounded-full bg-black active:opacity-80">
           <Ionicons name="logo-apple" size={22} color="#fff" />
-          <Text className="text-base font-semibold text-white">Continuar com Apple</Text>
+          <Text className="text-base font-semibold text-white">{t.auth.apple}</Text>
         </Pressable>
 
         {/* Visitante */}
         <Pressable onPress={() => router.back()} className="items-center py-2">
-          <Text className="text-sm text-foreground/50">Continuar como visitante</Text>
+          <Text className="text-sm text-foreground/50">{t.auth.guest}</Text>
         </Pressable>
 
         <Text className="mt-8 px-4 text-center text-xs text-foreground/30">
-          Ao continuar, você concorda com os Termos de Uso e a Política de Privacidade do Verbo.
+          {t.auth.terms}
         </Text>
       </View>
     </SafeAreaView>
