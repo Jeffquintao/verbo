@@ -4,15 +4,19 @@ import { useState } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { ScreenHeader } from '@/components/screen-header';
+import { mediaForLocale, type MediaTab } from '@/constants/media';
 import { useTranslation } from '@/i18n';
-import { FEATURED, MEDIA, type MediaTab } from '@/constants/media';
-
+import { useLocaleStore } from '@/store/useLocaleStore';
 
 export default function MidiaScreen() {
   const t = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
   const [tab, setTab] = useState<MediaTab>('videos');
-  const featured = FEATURED[tab];
-  const items = MEDIA[tab];
+
+  // Canais curados no idioma do usuário.
+  const media = mediaForLocale(locale);
+  const featured = media.featured[tab];
+  const items = media.items[tab];
   const TABS: { id: MediaTab; label: string }[] = [
     { id: 'videos', label: t.media.videos },
     { id: 'podcasts', label: t.media.podcasts },
