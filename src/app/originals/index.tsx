@@ -6,25 +6,27 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PremiumBadge } from '@/components/premium-badge';
 import { BrandColors } from '@/constants/colors';
-import { useTranslation } from '@/i18n';
 import {
   getStrong,
-  INTERLINEAR_VERSES,
+  interlinearVersesForLocale,
   type InterlinearWord,
 } from '@/constants/originals';
+import { useTranslation } from '@/i18n';
+import { useLocaleStore } from '@/store/useLocaleStore';
 
 type Lang = 'NT' | 'AT';
 
 export default function OriginalsScreen() {
   const [lang, setLang] = useState<Lang>('NT');
   const t = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
   const [selected, setSelected] = useState<InterlinearWord | null>(null);
 
   const verse = useMemo(
-    () => INTERLINEAR_VERSES.find((v) => v.testament === lang)!,
-    [lang],
+    () => interlinearVersesForLocale(locale).find((v) => v.testament === lang)!,
+    [lang, locale],
   );
-  const strong = selected ? getStrong(selected.strong) : null;
+  const strong = selected ? getStrong(selected.strong, locale) : null;
   const isHebrew = lang === 'AT';
 
   function switchLang(l: Lang) {

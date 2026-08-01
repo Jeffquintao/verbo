@@ -6,7 +6,8 @@ import { ScreenHeader } from '@/components/screen-header';
 import { BrandColors } from '@/constants/colors';
 import { getVerseRefOfTheDay, refBookIndex } from '@/constants/verses';
 import { useTranslation } from '@/i18n';
-import { bookName, getBook, getChapterVerses } from '@/services/bible';
+import { useChapter } from '@/hooks/use-bible-text';
+import { bookName, getBook } from '@/services/bible';
 import { PLAN_DAYS } from '@/services/readingPlan';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useBibleStore } from '@/store/useBibleStore';
@@ -42,8 +43,8 @@ export default function HomeScreen() {
   const verseRef = getVerseRefOfTheDay();
   const verseBookIndex = refBookIndex(verseRef);
   const verseBook = getBook(verseBookIndex);
-  const verseText =
-    getChapterVerses(version, verseBookIndex, verseRef.chapter)[verseRef.verse - 1] ?? '';
+  const { verses: verseChapter } = useChapter(version, verseBookIndex, verseRef.chapter);
+  const verseText = verseChapter[verseRef.verse - 1] ?? '';
   const verseLabel = verseBook
     ? `${bookName(verseBook, locale)} ${verseRef.chapter}:${verseRef.verse}`
     : '';

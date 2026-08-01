@@ -7,13 +7,13 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { VoicePicker } from '@/components/voice-picker';
+import { useChapter } from '@/hooks/use-bible-text';
 import { useTranslation } from '@/i18n';
 import { BrandColors } from '@/constants/colors';
 import {
   bookIndexByAbbrev,
   bookName,
   getBook,
-  getChapterVerses,
   nextChapter,
   prevChapter,
 } from '@/services/bible';
@@ -39,10 +39,7 @@ export default function AudioPlayerScreen() {
   const bookIndex = bookIndexByAbbrev(book);
   const chapterNum = Number(chapter) || 1;
   const meta = getBook(bookIndex);
-  const verses = useMemo(
-    () => getChapterVerses(version, bookIndex, chapterNum),
-    [version, bookIndex, chapterNum],
-  );
+  const { verses } = useChapter(version, bookIndex, chapterNum);
 
   const [idx, setIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -152,18 +149,21 @@ export default function AudioPlayerScreen() {
     stopPlayback();
   }, [stopPlayback]);
 
-  // Auto-inicia ao abrir / ao trocar de capítulo
+  // Auto-inicia ao abrir / ao trocar de capítulo.
+  // Espera o texto estar carregado: o capítulo vem de um asset lido do disco,
+  // e sem versículos a narração começaria vazia.
   useEffect(() => {
+    if (verses.length === 0) return;
     idxRef.current = 0;
     setIdx(0);
-    const t = setTimeout(() => play(), 350);
+    const timer = setTimeout(() => play(), 350);
     return () => {
-      clearTimeout(t);
+      clearTimeout(timer);
       playingRef.current = false;
       stopPlayback();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookIndex, chapterNum, version]);
+  }, [bookIndex, chapterNum, version, verses.length === 0]);
 
   async function jumpTo(i: number) {
     await stopPlayback();

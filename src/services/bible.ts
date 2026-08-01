@@ -1,10 +1,18 @@
 /**
  * Serviço de leitura bíblica. Todas as versões são domínio público e ficam
- * embutidas no app (offline). Geradas por scripts/build-bible.js.
+ * no app (offline). Geradas por scripts/build-bible.js.
  * Schema: versao[bookIndex][chapterIndex][verseIndex].
  *
- * As versões disponíveis dependem do idioma escolhido pelo usuário.
+ * IMPORTANTE — por que o carregamento é assíncrono:
+ * os textos somam ~20MB. Se fossem `require` de .json, o Metro os embutiria
+ * no bundle JavaScript (o bundle passava de 18MB para 39MB). Em vez disso
+ * eles são ASSETS (assets/bible/*.bible, ver metro.config.js): ficam como
+ * arquivos separados dentro do app e só a versão que o usuário abre é lida
+ * do disco e convertida. Depois de carregada, fica em cache em memória.
  */
+import { Asset } from 'expo-asset';
+import * as FileSystem from 'expo-file-system/legacy';
+
 import type { Locale } from '@/store/useLocaleStore';
 
 export type BibleVersion = 'ACF' | 'NVI' | 'KJV' | 'ASV' | 'RVR';
@@ -18,33 +26,56 @@ export type BookMeta = {
   chapters: number;
 };
 
-// require (em vez de import) evita o TypeScript inferir o tipo literal de
-// ~4MB de JSON por versão. O Metro resolve e embute os arquivos normalmente.
+// books.json é pequeno (~9KB) e usado em toda a navegação: fica no bundle.
 const booksData = require('../data/bible/books.json') as BookMeta[];
 
-/**
- * Carrega o texto de uma versão só quando ela é usada pela primeira vez.
- * São ~4MB por versão — carregar as cinco na inicialização pesaria à toa.
- * O require do Metro faz cache, então o custo é pago uma única vez.
- */
-const cache: Partial<Record<BibleVersion, string[][][]>> = {};
+export const BOOKS = booksData;
 
-function load(version: BibleVersion): string[][][] {
-  const cached = cache[version];
-  if (cached) return cached;
-  let data: string[][][];
-  switch (version) {
-    case 'ACF': data = require('../data/bible/acf.json'); break;
-    case 'NVI': data = require('../data/bible/nvi.json'); break;
-    case 'KJV': data = require('../data/bible/kjv.json'); break;
-    case 'ASV': data = require('../data/bible/asv.json'); break;
-    case 'RVR': data = require('../data/bible/rvr.json'); break;
-  }
-  cache[version] = data;
-  return data;
+/** Texto de uma versão: [livro][capítulo][versículo]. */
+export type BibleText = string[][][];
+
+// Módulos de asset (o require aqui devolve só um ID, não o conteúdo).
+const ASSETS: Record<BibleVersion, number> = {
+  ACF: require('../../assets/bible/acf.bible'),
+  NVI: require('../../assets/bible/nvi.bible'),
+  KJV: require('../../assets/bible/kjv.bible'),
+  ASV: require('../../assets/bible/asv.bible'),
+  RVR: require('../../assets/bible/rvr.bible'),
+};
+
+const cache: Partial<Record<BibleVersion, BibleText>> = {};
+const inFlight: Partial<Record<BibleVersion, Promise<BibleText>>> = {};
+
+/** Versão já carregada em memória, ou undefined. */
+export function getLoadedVersion(version: BibleVersion): BibleText | undefined {
+  return cache[version];
 }
 
-export const BOOKS = booksData;
+/**
+ * Carrega o texto de uma versão (do disco, uma única vez).
+ * Chamadas concorrentes compartilham a mesma promessa.
+ */
+export function loadVersion(version: BibleVersion): Promise<BibleText> {
+  const cached = cache[version];
+  if (cached) return Promise.resolve(cached);
+
+  const pending = inFlight[version];
+  if (pending) return pending;
+
+  const promise = (async () => {
+    const asset = Asset.fromModule(ASSETS[version]);
+    if (!asset.localUri) await asset.downloadAsync();
+    const uri = asset.localUri ?? asset.uri;
+    const raw = await FileSystem.readAsStringAsync(uri);
+    const data = JSON.parse(raw) as BibleText;
+    cache[version] = data;
+    delete inFlight[version];
+    return data;
+  })();
+
+  inFlight[version] = promise;
+  return promise;
+}
 
 export type VersionMeta = { id: BibleVersion; label: string; name: string };
 
@@ -99,13 +130,13 @@ export function bookName(book: BookMeta, locale: Locale): string {
   return book.name;
 }
 
-/** Versículos de um capítulo (chapter é 1-based). */
-export function getChapterVerses(
-  version: BibleVersion,
+/** Versículos de um capítulo a partir de um texto já carregado (chapter é 1-based). */
+export function chapterVerses(
+  text: BibleText | undefined,
   bookIndex: number,
   chapter: number,
 ): string[] {
-  return load(version)[bookIndex]?.[chapter - 1] ?? [];
+  return text?.[bookIndex]?.[chapter - 1] ?? [];
 }
 
 export function chapterCount(bookIndex: number): number {
@@ -124,15 +155,14 @@ function normalize(s: string): string {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 }
 
-/** Busca textual em toda a versão. Para na quantidade `limit` de resultados. */
-export function searchVerses(
-  version: BibleVersion,
+/** Busca textual num texto já carregado. Para em `limit` resultados. */
+export function searchInText(
+  data: BibleText | undefined,
   query: string,
   limit = 100,
 ): SearchResult[] {
   const q = normalize(query.trim());
-  if (q.length < 2) return [];
-  const data = load(version);
+  if (!data || q.length < 2) return [];
   const results: SearchResult[] = [];
 
   for (let bi = 0; bi < data.length; bi++) {

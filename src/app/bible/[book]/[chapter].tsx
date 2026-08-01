@@ -1,19 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { VerseActionSheet } from '@/components/verse-action-sheet';
 import { BrandColors } from '@/constants/colors';
 import { formatRef, placesInChapter } from '@/constants/places';
 import { useTheme } from '@/hooks/use-theme';
+import { useChapter } from '@/hooks/use-bible-text';
 import { useTranslation } from '@/i18n';
 import {
   bookIndexByAbbrev,
   bookName,
   getBook,
-  getChapterVerses,
   nextChapter,
   prevChapter,
   versionsForLocale,
@@ -38,10 +38,7 @@ export default function ReaderScreen() {
   const chapterNum = Number(chapter) || 1;
   const meta = getBook(bookIndex);
 
-  const verses = useMemo(
-    () => getChapterVerses(version, bookIndex, chapterNum),
-    [version, bookIndex, chapterNum],
-  );
+  const { verses, loading } = useChapter(version, bookIndex, chapterNum);
 
   useEffect(() => {
     if (bookIndex >= 0) setLastRead({ bookIndex, chapter: chapterNum });
@@ -93,6 +90,11 @@ export default function ReaderScreen() {
 
       {/* Versículos */}
       <ScrollView contentContainerClassName="px-5 py-4 pb-28" showsVerticalScrollIndicator={false}>
+        {loading && (
+          <View className="mt-20 items-center">
+            <ActivityIndicator color={BrandColors.primary} />
+          </View>
+        )}
         {verses.map((text, i) => {
           const verseNum = i + 1;
           const key = verseKey(bookIndex, chapterNum, verseNum);
@@ -117,7 +119,7 @@ export default function ReaderScreen() {
         })}
 
         {/* Pin de local histórico mencionado no capítulo */}
-        {placesInChapter(book, chapterNum).slice(0, 1).map((place) => (
+        {placesInChapter(book, chapterNum, locale).slice(0, 1).map((place) => (
           <Pressable
             key={place.id}
             onPress={() => router.push(`/places/${place.id}` as never)}

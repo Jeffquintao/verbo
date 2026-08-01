@@ -1,13 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BrandColors } from '@/constants/colors';
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n';
-import { bookName, findBook, getBook, searchVerses } from '@/services/bible';
+import { useBibleText } from '@/hooks/use-bible-text';
+import { bookName, findBook, getBook, searchInText } from '@/services/bible';
 import { useBibleStore } from '@/store/useBibleStore';
 import { useLocaleStore } from '@/store/useLocaleStore';
 
@@ -32,7 +33,8 @@ export default function SearchScreen() {
   const locale = useLocaleStore((s) => s.locale);
   const [query, setQuery] = useState('');
 
-  const results = useMemo(() => searchVerses(version, query, 80), [version, query]);
+  const { text: bibleText, loading } = useBibleText(version);
+  const results = useMemo(() => searchInText(bibleText, query, 80), [bibleText, query]);
   const bookMatch = useMemo(() => (query.trim() ? findBook(query) : -1), [query]);
   const matchedBook = bookMatch >= 0 ? getBook(bookMatch) : undefined;
 
@@ -82,7 +84,13 @@ export default function SearchScreen() {
           </Pressable>
         )}
 
-        {query.trim().length >= 2 && (
+        {loading && (
+          <View className="mt-16 items-center">
+            <ActivityIndicator color={BrandColors.primary} />
+          </View>
+        )}
+
+        {!loading && query.trim().length >= 2 && (
           <Text className="mb-3 mt-1 text-xs text-foreground/50">
             {t.search.results(results.length)}
           </Text>

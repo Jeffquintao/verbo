@@ -8,6 +8,7 @@ import { BrandColors } from '@/constants/colors';
 import { pickQuizQuestions } from '@/constants/quiz';
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n';
+import { useLocaleStore } from '@/store/useLocaleStore';
 import { useTalentsStore } from '@/store/useTalentsStore';
 
 const QUESTION_TIME = 30; // segundos
@@ -16,7 +17,9 @@ const FAST_THRESHOLD = 10; // responder em < 10s vale mais
 export default function QuizPlayScreen() {
   const { colors } = useTheme();
   const t = useTranslation();
-  const [questions] = useState(() => pickQuizQuestions(10));
+  const locale = useLocaleStore((s) => s.locale);
+  // Sorteia uma vez, no idioma escolhido, e mantém pela partida inteira.
+  const [questions] = useState(() => pickQuizQuestions(locale, 10));
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);

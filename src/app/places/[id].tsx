@@ -9,12 +9,14 @@ import { BrandColors } from '@/constants/colors';
 import { formatRef, getPlace, type PlaceRef } from '@/constants/places';
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n';
+import { useLocaleStore } from '@/store/useLocaleStore';
 
 type Tab = 'hoje' | 'seculo' | 'mapa';
 
 export default function PlaceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const place = getPlace(id);
+  const locale = useLocaleStore((s) => s.locale);
+  const place = getPlace(id, locale);
   const { colors } = useTheme();
   const t = useTranslation();
   const [tab, setTab] = useState<Tab>('hoje');

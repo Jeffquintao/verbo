@@ -6,20 +6,46 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PremiumBadge } from '@/components/premium-badge';
 import { BrandColors } from '@/constants/colors';
+import {
+  formatRef,
+  PLACE_REGIONS,
+  placesForLocale,
+  type Place,
+  type PlaceRegion,
+} from '@/constants/places';
 import { useTranslation } from '@/i18n';
-import { formatRef, PLACE_REGIONS, PLACES, type Place } from '@/constants/places';
+import { useLocaleStore } from '@/store/useLocaleStore';
+
+/** Rótulo da região no idioma atual. */
+export function regionLabel(
+  region: PlaceRegion,
+  t: ReturnType<typeof useTranslation>,
+): string {
+  switch (region) {
+    case 'jerusalem':
+      return t.places.regionJerusalem;
+    case 'judea':
+      return t.places.regionJudea;
+    case 'galilee':
+      return t.places.regionGalilee;
+    case 'paul':
+      return t.places.regionPaul;
+  }
+}
 
 export default function PlacesScreen() {
   const t = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
   const [query, setQuery] = useState('');
 
+  const places = useMemo(() => placesForLocale(locale), [locale]);
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return PLACES;
-    return PLACES.filter(
+    if (!q) return places;
+    return places.filter(
       (p) => p.name.toLowerCase().includes(q) || p.city.toLowerCase().includes(q),
     );
-  }, [query]);
+  }, [query, places]);
 
   return (
     <SafeAreaView className="flex-1 bg-background" edges={['top']}>
@@ -47,7 +73,7 @@ export default function PlacesScreen() {
           return (
             <View key={region} className="mb-2">
               <Text className="mb-2 mt-3 text-xs font-bold uppercase tracking-wider text-foreground/40">
-                {region}
+                {regionLabel(region, t)}
               </Text>
               {items.map((p) => (
                 <PlaceRow key={p.id} place={p} />

@@ -10,16 +10,19 @@
  *   ASV  (en) — American Standard Version   — bibleapi/bibleapi-bibles-json
  *   RVR  (es) — Reina-Valera 1909           — aruljohn/Reina-Valera (1 arquivo por livro)
  *
- * Saída em src/data/bible/:
- *   acf.json, nvi.json, kjv.json, asv.json, rvr.json   — string[][][]
- *   books.json — [{ abbrev, name, nameEn, nameEs, testament, chapters }]
+ * Saída:
+ *   assets/bible/{acf,nvi,kjv,asv,rvr}.bible — string[][][] (assets, fora do bundle JS)
+ *   src/data/bible/books.json — [{ abbrev, name, nameEn, nameEs, testament, chapters }]
  *
  * Rodar: node scripts/build-bible.js   (precisa de internet; Node 18+)
  */
 const fs = require('fs');
 const path = require('path');
 
-const DIR = path.join(__dirname, '..', 'src', 'data', 'bible');
+// books.json fica em src/ (é módulo JS); os textos vão para assets/ como
+// arquivos .bible, para NÃO entrarem no bundle JavaScript (ver metro.config.js).
+const META_DIR = path.join(__dirname, '..', 'src', 'data', 'bible');
+const TEXT_DIR = path.join(__dirname, '..', 'assets', 'bible');
 
 // --- Nomes dos livros, em ordem canônica (66) ---
 const NAMES_PT = [
@@ -122,7 +125,8 @@ async function fetchRvr() {
 }
 
 (async () => {
-  fs.mkdirSync(DIR, { recursive: true });
+  fs.mkdirSync(META_DIR, { recursive: true });
+  fs.mkdirSync(TEXT_DIR, { recursive: true });
 
   console.log('Baixando ACF…');
   const acf = await fetchBodruk('acf.json', 'ACF');
@@ -145,13 +149,14 @@ async function fetchRvr() {
     chapters: acf.chapters[i].length,
   }));
 
-  const write = (file, data) => fs.writeFileSync(path.join(DIR, file), JSON.stringify(data));
-  write('acf.json', acf.chapters);
-  write('nvi.json', nvi.chapters);
-  write('kjv.json', kjv);
-  write('asv.json', asv);
-  write('rvr.json', rvr);
-  fs.writeFileSync(path.join(DIR, 'books.json'), JSON.stringify(books, null, 2));
+  const write = (name, data) =>
+    fs.writeFileSync(path.join(TEXT_DIR, name + '.bible'), JSON.stringify(data));
+  write('acf', acf.chapters);
+  write('nvi', nvi.chapters);
+  write('kjv', kjv);
+  write('asv', asv);
+  write('rvr', rvr);
+  fs.writeFileSync(path.join(META_DIR, 'books.json'), JSON.stringify(books, null, 2));
 
   const count = (v) => v.reduce((n, b) => n + b.length, 0);
   console.log(`OK — ${books.length} livros.`);

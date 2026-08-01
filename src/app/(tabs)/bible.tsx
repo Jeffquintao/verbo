@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BookChapterPicker } from '@/components/book-chapter-picker';
@@ -11,12 +11,13 @@ import { BrandColors } from '@/constants/colors';
 import { formatRef, placesInChapter } from '@/constants/places';
 import { themeVars } from '@/constants/themes';
 import { useTheme } from '@/hooks/use-theme';
+import { useBibleTexts, useChapter } from '@/hooks/use-bible-text';
 import { useTranslation } from '@/i18n';
 import {
   bookIndexByAbbrev,
   bookName,
   getBook,
-  getChapterVerses,
+  chapterVerses,
   nextChapter,
   prevChapter,
   versionsForLocale,
@@ -52,7 +53,7 @@ export default function BibleScreen() {
 
   if (!meta) return null;
 
-  const verses = getChapterVerses(version, bookIndex, chapterNum);
+  const { verses, loading } = useChapter(version, bookIndex, chapterNum);
   const prev = prevChapter(bookIndex, chapterNum);
   const next = nextChapter(bookIndex, chapterNum);
 
@@ -121,7 +122,8 @@ export default function BibleScreen() {
 
       {/* Conteúdo */}
       <ScrollView className="flex-1" contentContainerClassName="p-5 pb-6" showsVerticalScrollIndicator={false}>
-        {tab === 'leitura' && (
+        {tab === 'leitura' && loading && <BibleLoading />}
+        {tab === 'leitura' && !loading && (
           <LeituraTab
             verses={verses}
             bookIndex={bookIndex}
@@ -206,6 +208,14 @@ export default function BibleScreen() {
   );
 }
 
+function BibleLoading() {
+  return (
+    <View className="mt-20 items-center">
+      <ActivityIndicator color={BrandColors.primary} />
+    </View>
+  );
+}
+
 function LeituraTab({
   verses,
   bookIndex,
@@ -222,7 +232,8 @@ function LeituraTab({
   onSelectVerse: (v: number) => void;
 }) {
   const t = useTranslation();
-  const places = placesInChapter(getBook(bookIndex)?.abbrev ?? '', chapterNum).slice(0, 1);
+  const locale = useLocaleStore((s) => s.locale);
+  const places = placesInChapter(getBook(bookIndex)?.abbrev ?? '', chapterNum, locale).slice(0, 1);
   return (
     <>
       {verses.map((text, i) => {
@@ -284,9 +295,10 @@ function CompararTab({ bookIndex, chapterNum }: { bookIndex: number; chapterNum:
   const locale = useLocaleStore((s) => s.locale);
   // Compara as versões disponíveis no idioma atual (uma ou duas).
   const versions = versionsForLocale(locale);
+  const { texts } = useBibleTexts(versions.map((v) => v.id));
   const columns = versions.map((v) => ({
     label: v.label,
-    verses: getChapterVerses(v.id, bookIndex, chapterNum),
+    verses: chapterVerses(texts[v.id], bookIndex, chapterNum),
   }));
   const count = Math.max(...columns.map((c) => c.verses.length), 0);
 
