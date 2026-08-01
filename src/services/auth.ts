@@ -1,20 +1,30 @@
 /**
- * Serviço de autenticação (Firebase Auth — email/senha).
+ * Serviço de autenticação do app.
  *
- * Google Sign-In: requer config nativa (OAuth client IDs + expo-auth-session
- * ou @react-native-google-signin). Fica como próximo passo — ver TODO no fim.
+ * O método principal é o Google (ver googleAuth.ts). Quando o Firebase está
+ * configurado, a conta do Google vira uma sessão do Firebase — é o que
+ * habilita sincronizar dados entre aparelhos. Sem Firebase, o login ainda
+ * funciona localmente (perfil do Google, sem sync), para dar pra testar
+ * com uma configuração só.
  */
 import {
-  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   onAuthStateChanged,
-  signInWithEmailAndPassword,
+  signInWithCredential,
   signOut,
-  updateProfile,
   type User as FirebaseUser,
 } from 'firebase/auth';
 
+import { useAuthStore, type User } from '@/store/useAuthStore';
+
 import { auth, isFirebaseConfigured } from './firebase';
-import type { User } from '@/store/useAuthStore';
+import {
+  GoogleCancelledError,
+  googleUnavailableReason,
+  isGoogleConfigured,
+  signInWithGoogleNative,
+  signOutGoogle,
+} from './googleAuth';
 
 function mapUser(fbUser: FirebaseUser): User {
   return {
@@ -25,41 +35,77 @@ function mapUser(fbUser: FirebaseUser): User {
   };
 }
 
-class AuthNotConfiguredError extends Error {
-  constructor() {
-    super(
-      'Firebase não configurado. Adicione as chaves no .env ou use o modo visitante.',
-    );
-    this.name = 'AuthNotConfiguredError';
+/** Erros do login com Google, para a tela traduzir a mensagem. */
+export type GoogleSignInError = 'expo-go' | 'not-configured' | 'cancelled' | 'failed';
+
+export class GoogleError extends Error {
+  reason: GoogleSignInError;
+  constructor(reason: GoogleSignInError) {
+    super(reason);
+    this.name = 'GoogleError';
+    this.reason = reason;
   }
 }
 
-export async function registerWithEmail(
-  name: string,
-  email: string,
-  password: string,
-): Promise<User> {
-  if (!auth) throw new AuthNotConfiguredError();
-  const cred = await createUserWithEmailAndPassword(auth, email, password);
-  if (name) await updateProfile(cred.user, { displayName: name });
-  return mapUser(cred.user);
+/**
+ * Login com Google — método principal do app.
+ *
+ * Precisa de development build (o módulo do Google é nativo) e do
+ * EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID no .env. Ver SETUP.md.
+ */
+export async function signInWithGoogle(): Promise<User> {
+  const unavailable = googleUnavailableReason();
+  if (unavailable) throw new GoogleError(unavailable);
+
+  let account;
+  try {
+    account = await signInWithGoogleNative();
+  } catch (err) {
+    if (err instanceof GoogleCancelledError) throw new GoogleError('cancelled');
+    throw new GoogleError('failed');
+  }
+
+  // Com Firebase: vira sessão do Firebase (habilita sync entre aparelhos).
+  if (auth && account.idToken) {
+    const credential = GoogleAuthProvider.credential(account.idToken);
+    const result = await signInWithCredential(auth, credential);
+    return mapUser(result.user);
+  }
+
+  // Sem Firebase: sessão local com o perfil do Google (sem sync).
+  const user: User = {
+    id: account.id,
+    name: account.name,
+    email: account.email,
+    isPremium: false,
+  };
+  useAuthStore.getState().setUser(user);
+  return user;
 }
 
-export async function loginWithEmail(email: string, password: string): Promise<User> {
-  if (!auth) throw new AuthNotConfiguredError();
-  const cred = await signInWithEmailAndPassword(auth, email, password);
-  return mapUser(cred.user);
+/** Login com Apple — ainda não disponível. */
+export async function signInWithApple(): Promise<User> {
+  throw new Error('apple-unavailable');
 }
 
 export async function logout(): Promise<void> {
-  if (!auth) return;
-  await signOut(auth);
+  await signOutGoogle();
+  if (auth) {
+    await signOut(auth);
+  } else {
+    // Sem Firebase não há listener para limpar o estado: limpa aqui.
+    useAuthStore.getState().setUser(null);
+  }
 }
 
-/** Observa o estado de auth do Firebase. Retorna unsubscribe (ou no-op). */
+/**
+ * Observa o estado de auth do Firebase.
+ * Sem Firebase, o estado é gerido direto pela store (login local).
+ */
 export function subscribeToAuth(onChange: (user: User | null) => void): () => void {
   if (!auth) {
-    onChange(null);
+    // Não sobrescreve um login local já existente.
+    if (!useAuthStore.getState().user) onChange(null);
     return () => {};
   }
   return onAuthStateChanged(auth, (fbUser) => {
@@ -67,27 +113,4 @@ export function subscribeToAuth(onChange: (user: User | null) => void): () => vo
   });
 }
 
-/**
- * Login com Google. Método principal de autenticação do app.
- *
- * Requer config nativa (não roda só com Expo Go genérico):
- *  1. npx expo install expo-auth-session expo-web-browser
- *  2. Criar OAuth client IDs (Web + Android + iOS) no Google Cloud Console
- *  3. Ativar provedor Google no Firebase Auth e preencher as chaves no .env
- *  4. Usar useAuthRequest do expo-auth-session p/ obter idToken e então
- *     signInWithCredential(auth, GoogleAuthProvider.credential(idToken))
- *
- * Enquanto não configurado, lança mensagem amigável.
- */
-export async function signInWithGoogle(): Promise<User> {
-  throw new Error(
-    'Login com Google ainda não configurado. Falta o OAuth client ID do Google + chaves do Firebase (ver SETUP.md). Por enquanto, use “Continuar como visitante”.',
-  );
-}
-
-/** Login com Apple — placeholder (ainda não disponível). */
-export async function signInWithApple(): Promise<User> {
-  throw new Error('Login com Apple ainda não disponível.');
-}
-
-export { isFirebaseConfigured };
+export { isFirebaseConfigured, isGoogleConfigured };

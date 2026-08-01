@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n';
-import { signInWithGoogle } from '@/services/auth';
+import { GoogleError, signInWithGoogle } from '@/services/auth';
 
 export default function LoginScreen() {
   const { colors } = useTheme();
@@ -19,7 +19,17 @@ export default function LoginScreen() {
       await signInWithGoogle();
       router.back();
     } catch (err) {
-      Alert.alert(t.auth.google, err instanceof Error ? err.message : t.common.somethingWentWrong);
+      // Cancelar não é erro: o usuário só fechou a janela do Google.
+      if (err instanceof GoogleError && err.reason === 'cancelled') return;
+      const message =
+        err instanceof GoogleError
+          ? err.reason === 'expo-go'
+            ? t.auth.googleNeedsBuild
+            : err.reason === 'not-configured'
+              ? t.auth.googleNotConfigured
+              : t.auth.googleFailed
+          : t.common.somethingWentWrong;
+      Alert.alert(t.auth.google, message);
     } finally {
       setLoading(null);
     }

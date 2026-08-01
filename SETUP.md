@@ -35,19 +35,49 @@ highlights, notas e plano de leitura funcionam 100% offline/local.
 
 ## Login com Google (método principal)
 
-O login do app é via Google (Apple virá depois). Requer config nativa:
+O código já está pronto (`src/services/googleAuth.ts` + `auth.ts`). Falta só a
+sua configuração no Google.
 
-```bash
-npx expo install expo-auth-session expo-web-browser
+> ⚠️ **Não funciona no Expo Go.** A biblioteca do Google é um módulo nativo,
+> então exige um **development build**. No Expo Go o app abre normalmente e o
+> botão apenas avisa isso — nada quebra.
+
+**1. Criar o OAuth client ID**
+
+Pelo Firebase (recomendado, porque também habilita o sync):
+1. https://console.firebase.google.com → seu projeto → **Authentication** →
+   **Sign-in method** → ative **Google**
+2. Isso cria automaticamente um **Web client ID** — copie-o
+3. Preencha também as chaves `EXPO_PUBLIC_FIREBASE_*` no `.env`
+
+Sem Firebase também funciona (login local, sem sincronizar): crie um projeto em
+https://console.cloud.google.com → **APIs e serviços** → **Credenciais** →
+**Criar credenciais** → **ID do cliente OAuth** → tipo **Aplicativo da Web**.
+
+**2. Colocar no `.env`**
+
+```
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=1234-abc.apps.googleusercontent.com
 ```
 
-1. Crie um projeto em https://console.firebase.google.com e ative o provedor
-   **Google** em Authentication
-2. Crie OAuth client IDs (Web + Android + iOS) no Google Cloud Console
-3. Preencha `.env` (copie de `.env.example`) com as chaves do Firebase
-4. Implemente o fluxo em `src/services/auth.ts` → `signInWithGoogle` (TODO marcado)
+Use o **Web** client ID mesmo no Android e no iOS — é para ele que o ID token
+é emitido. No Android é preciso ainda cadastrar a **impressão digital SHA-1**
+do seu build no Firebase/Google Cloud (o `eas credentials` mostra a sua).
 
-Sem isso, o login fica desativado e o app segue em modo visitante.
+**3. Gerar um development build e testar**
+
+```bash
+eas build --profile development --platform android
+```
+
+Instale o APK gerado e rode `npx expo start --dev-client`.
+
+**iOS:** adicione o `iosUrlScheme` ao plugin no `app.json` (o valor é o iOS
+client ID invertido, `com.googleusercontent.apps.SEU-ID`) e preencha
+`EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`.
+
+Enquanto nada disso estiver feito, o app continua funcionando em **modo
+visitante** — só o botão do Google fica indisponível.
 
 ## Ligar assinaturas (RevenueCat) — precisa de dev build
 

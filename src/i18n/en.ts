@@ -278,6 +278,11 @@ export const en = {
     guest: 'Continue as a guest',
     terms: 'By continuing, you agree to Verbo’s Terms of Use and Privacy Policy.',
     appleSoon: 'Sign in with Apple will be enabled soon.',
+    googleNeedsBuild:
+      'Google sign-in needs a development build — it does not work in Expo Go. See SETUP.md.',
+    googleNotConfigured:
+      'Google sign-in is not set up yet. Add EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID to .env (see SETUP.md).',
+    googleFailed: 'Could not sign in with Google. Please try again.',
   },
 
   profile: {

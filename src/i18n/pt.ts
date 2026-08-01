@@ -274,6 +274,11 @@ export const pt: Translation = {
     guest: 'Continuar como visitante',
     terms: 'Ao continuar, você concorda com os Termos de Uso e a Política de Privacidade do Verbo.',
     appleSoon: 'O login com Apple será habilitado em breve.',
+    googleNeedsBuild:
+      'O login com Google precisa de um development build — não funciona no Expo Go. Ver SETUP.md.',
+    googleNotConfigured:
+      'O login com Google ainda não está configurado. Adicione EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID no .env (ver SETUP.md).',
+    googleFailed: 'Não foi possível entrar com o Google. Tente novamente.',
   },
 
   profile: {

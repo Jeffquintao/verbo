@@ -274,6 +274,11 @@ export const es: Translation = {
     guest: 'Continuar como invitado',
     terms: 'Al continuar, aceptas los Términos de Uso y la Política de Privacidad de Verbo.',
     appleSoon: 'El inicio de sesión con Apple se habilitará pronto.',
+    googleNeedsBuild:
+      'El inicio de sesión con Google necesita un development build: no funciona en Expo Go. Ver SETUP.md.',
+    googleNotConfigured:
+      'El inicio de sesión con Google aún no está configurado. Añade EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID en .env (ver SETUP.md).',
+    googleFailed: 'No se pudo iniciar sesión con Google. Inténtalo de nuevo.',
   },
 
   profile: {
