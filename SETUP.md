@@ -132,6 +132,12 @@ Perfis configurados em `eas.json`. Package Android: `com.verbo.bibleapp`.
 
 ## Solução de problemas
 
+**`npx eas-cli` falha com `Cannot find module './lib/picomatch'`.** O cache do
+`npx` baixou o pacote pela metade. Apague a pasta do cache correspondente em
+`%LOCALAPPDATA%\npm-cache\_npx\`, rode `npm cache verify` e reinstale. Melhor
+ainda: instale de vez com `npm install -g eas-cli` e use `eas` direto (o `npx`
+rebaixa o CLI inteiro a cada chamada).
+
 **`expo export` falha no passo `hermesc` (Windows).** Resolvido fixando o
 `babel-preset-expo` na versão da SDK 54. Se reaparecer, garanta que pacotes do
 ecossistema Expo sejam instalados com `npx expo install <pkg>` (que escolhe a
