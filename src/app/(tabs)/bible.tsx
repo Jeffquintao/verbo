@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -25,6 +25,7 @@ import {
 import { useBibleStore } from '@/store/useBibleStore';
 import { useLibraryStore, verseKey } from '@/store/useLibraryStore';
 import { useLocaleStore } from '@/store/useLocaleStore';
+import { usePremium } from '@/store/usePremiumStore';
 
 type Tab = 'leitura' | 'comparar' | 'notas';
 
@@ -39,6 +40,7 @@ export default function BibleScreen() {
   const setVersion = useBibleStore((s) => s.setVersion);
   const highlights = useLibraryStore((s) => s.highlights);
   const notes = useLibraryStore((s) => s.notes);
+  const isPremium = usePremium();
 
   const [tab, setTab] = useState<Tab>('leitura');
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
@@ -57,16 +59,34 @@ export default function BibleScreen() {
   const prev = prevChapter(bookIndex, chapterNum);
   const next = nextChapter(bookIndex, chapterNum);
 
+  // Assinatura vencida com uma versão paga selecionada: volta para a gratuita
+  // em vez de deixar o leitor num conteúdo a que não tem mais direito.
+  useEffect(() => {
+    if (!isPremium && version !== versions[0].id) setVersion(versions[0].id);
+  }, [isPremium, version, versions, setVersion]);
+
+  // Comparar exige duas versões, então é Premium — e nas duas primeiras abas o
+  // conteúdo gratuito continua inteiro.
+  useEffect(() => {
+    if (!isPremium && tab === 'comparar') setTab('leitura');
+  }, [isPremium, tab]);
+
   if (!meta) return null;
 
-  const TABS: { id: Tab; label: string }[] = [
+  const TABS: { id: Tab; label: string; premium?: boolean }[] = [
     { id: 'leitura', label: t.bible.reading },
-    { id: 'comparar', label: t.bible.compare },
+    { id: 'comparar', label: t.bible.compare, premium: true },
     { id: 'notas', label: t.bible.notes },
   ];
 
   function goTo(pos: { bookIndex: number; chapter: number } | null) {
     if (pos) setLastRead(pos);
+  }
+
+  /** Versões além da primeira são do plano pago. */
+  function selectVersion(id: (typeof versions)[number]['id'], locked: boolean) {
+    if (locked) router.push('/premium' as never);
+    else setVersion(id);
   }
 
   return (
@@ -87,17 +107,25 @@ export default function BibleScreen() {
 
           <View className="flex-row items-center gap-2">
             <View className="flex-row rounded-full bg-white/10 p-0.5">
-              {versions.map((v) => (
-                <Pressable
-                  key={v.id}
-                  onPress={() => setVersion(v.id)}
-                  className={`rounded-full px-3 py-1 ${version === v.id ? 'bg-primary' : ''}`}>
-                  <Text
-                    className={`text-xs font-semibold ${version === v.id ? 'text-white' : 'text-white/60'}`}>
-                    {v.label}
-                  </Text>
-                </Pressable>
-              ))}
+              {versions.map((v, i) => {
+                const locked = !isPremium && i > 0;
+                return (
+                  <Pressable
+                    key={v.id}
+                    onPress={() => selectVersion(v.id, locked)}
+                    className={`flex-row items-center gap-1 rounded-full px-3 py-1 ${
+                      version === v.id ? 'bg-primary' : ''
+                    }`}>
+                    <Text
+                      className={`text-xs font-semibold ${
+                        version === v.id ? 'text-white' : locked ? 'text-white/35' : 'text-white/60'
+                      }`}>
+                      {v.label}
+                    </Text>
+                    {locked && <Ionicons name="lock-closed" size={10} color={BrandColors.gold} />}
+                  </Pressable>
+                );
+              })}
             </View>
             <Pressable
               onPress={() => setShowMenu(true)}
@@ -110,16 +138,26 @@ export default function BibleScreen() {
 
       {/* Sub-abas */}
       <View className="flex-row border-b border-foreground/10">
-        {TABS.map((tb) => (
-          <Pressable key={tb.id} onPress={() => setTab(tb.id)} className="flex-1 items-center py-3">
-            <Text className={`font-semibold ${tab === tb.id ? 'text-primary' : 'text-foreground/50'}`}>
-              {tb.label}
-            </Text>
-            {tab === tb.id && (
-              <View className="absolute bottom-0 h-0.5 w-14 rounded-full bg-primary" />
-            )}
-          </Pressable>
-        ))}
+        {TABS.map((tb) => {
+          const locked = Boolean(tb.premium) && !isPremium;
+          return (
+            <Pressable
+              key={tb.id}
+              onPress={() => (locked ? router.push('/premium' as never) : setTab(tb.id))}
+              className="flex-1 flex-row items-center justify-center gap-1 py-3">
+              <Text
+                className={`font-semibold ${
+                  tab === tb.id ? 'text-primary' : locked ? 'text-foreground/30' : 'text-foreground/50'
+                }`}>
+                {tb.label}
+              </Text>
+              {locked && <Ionicons name="lock-closed" size={11} color={BrandColors.gold} />}
+              {tab === tb.id && (
+                <View className="absolute bottom-0 h-0.5 w-14 rounded-full bg-primary" />
+              )}
+            </Pressable>
+          );
+        })}
       </View>
 
       {/* Conteúdo */}

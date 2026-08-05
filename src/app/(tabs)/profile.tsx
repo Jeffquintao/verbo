@@ -9,6 +9,7 @@ import { useTranslation } from '@/i18n';
 import { logout } from '@/services/auth';
 import { useAuthStore } from '@/store/useAuthStore';
 import { LOCALES, useLocaleStore } from '@/store/useLocaleStore';
+import { usePremiumStore } from '@/store/usePremiumStore';
 import { useTalentsStore } from '@/store/useTalentsStore';
 
 const THEME_OPTIONS = [
@@ -24,6 +25,8 @@ export default function ProfileScreen() {
   const { mode, setMode } = useTheme();
   const locale = useLocaleStore((s) => s.locale);
   const setLocale = useLocaleStore((s) => s.setLocale);
+  const isPremium = usePremiumStore((s) => s.isPremium);
+  const since = usePremiumStore((s) => s.since);
 
   const settings = [
     { label: t.profile.readingPlans, icon: 'calendar' as const, href: '/plan' },
@@ -68,15 +71,36 @@ export default function ProfileScreen() {
           )}
         </View>
 
-        {/* Premium */}
+        {/* Premium — vira painel do assinante depois da compra. */}
         <View className="mb-6 rounded-3xl bg-primary p-6">
-          <Text className="mb-1 text-lg font-bold text-white">{t.profile.premiumTitle}</Text>
-          <Text className="mb-4 text-sm text-white/70">{t.profile.premiumBody}</Text>
-          <Pressable
-            onPress={() => router.push('/premium')}
-            className="items-center rounded-full bg-gold py-3 active:opacity-80">
-            <Text className="font-bold text-ink">{t.profile.premiumCta}</Text>
-          </Pressable>
+          {isPremium ? (
+            <>
+              <View className="mb-1 flex-row items-center gap-2">
+                <Ionicons name="diamond" size={18} color={BrandColors.gold} />
+                <Text className="text-lg font-bold text-white">{t.premium.active}</Text>
+              </View>
+              {since && (
+                <Text className="mb-4 text-sm text-white/70">
+                  {t.premium.activeSince(new Date(since).toLocaleDateString())}
+                </Text>
+              )}
+              <Pressable
+                onPress={() => router.push('/premium')}
+                className="items-center rounded-full bg-white/15 py-3 active:opacity-80">
+                <Text className="font-bold text-white">{t.premium.manage}</Text>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              <Text className="mb-1 text-lg font-bold text-white">{t.profile.premiumTitle}</Text>
+              <Text className="mb-4 text-sm text-white/70">{t.profile.premiumBody}</Text>
+              <Pressable
+                onPress={() => router.push('/premium')}
+                className="items-center rounded-full bg-gold py-3 active:opacity-80">
+                <Text className="font-bold text-ink">{t.profile.premiumCta}</Text>
+              </Pressable>
+            </>
+          )}
         </View>
 
         {/* Idioma */}

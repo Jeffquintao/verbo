@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PremiumGate } from '@/components/premium-gate';
 import { VoicePicker } from '@/components/voice-picker';
 import { useChapter } from '@/hooks/use-bible-text';
 import { useTranslation } from '@/i18n';
@@ -32,6 +33,15 @@ const SPEEDS = [0.75, 1.0, 1.25, 1.5];
 const SLEEP_OPTIONS = [0, 5, 10, 15, 30]; // minutos; 0 = desligado
 
 export default function AudioPlayerScreen() {
+  const t = useTranslation();
+  return (
+    <PremiumGate title={t.audio.title} feature={t.audio.title}>
+      <AudioPlayer />
+    </PremiumGate>
+  );
+}
+
+function AudioPlayer() {
   const { book, chapter } = useLocalSearchParams<{ book: string; chapter: string }>();
   const version = useBibleStore((s) => s.version);
   const voiceId = useAudioSettings((s) => s.voiceId);

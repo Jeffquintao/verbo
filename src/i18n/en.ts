@@ -277,6 +277,20 @@ export const en = {
     subscribe: 'Subscribe now',
     disclaimer: 'Auto-renews. Cancel anytime on the Play Store.',
     purchaseDone: 'All set! Subscription activated.',
+    lockedTitle: (feature: string) => `${feature} is part of Premium`,
+    lockedBody:
+      'Subscribe to unlock this and every other Premium feature. Cancel anytime.',
+    unlock: 'Unlock Premium',
+    active: 'Premium active',
+    activeSince: (date: string) => `Subscriber since ${date}`,
+    manage: 'Manage subscription',
+    unavailable:
+      'Subscriptions are not available yet. They open as soon as the app is on the Play Store.',
+    testMode: 'Test mode',
+    testModeBody:
+      'This is a development build: subscribing here activates Premium locally, with no charge and no Play Store involved.',
+    testTurnOff: 'Turn Premium off',
+    freeVersionsOnly: 'Included in Premium',
   },
 
   auth: {

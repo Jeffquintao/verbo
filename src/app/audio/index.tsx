@@ -5,6 +5,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PremiumBadge } from '@/components/premium-badge';
+import { PremiumGate } from '@/components/premium-gate';
 import { useTranslation } from '@/i18n';
 import { BrandColors } from '@/constants/colors';
 import { BOOKS, bookName } from '@/services/bible';
@@ -14,6 +15,15 @@ import { useLocaleStore } from '@/store/useLocaleStore';
 type Testament = 'AT' | 'NT';
 
 export default function AudioLibraryScreen() {
+  const t = useTranslation();
+  return (
+    <PremiumGate title={t.audio.title} feature={t.audio.title}>
+      <AudioLibrary />
+    </PremiumGate>
+  );
+}
+
+function AudioLibrary() {
   const version = useBibleStore((s) => s.version);
   const t = useTranslation();
   const [testament, setTestament] = useState<Testament>('NT');

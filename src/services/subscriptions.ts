@@ -13,7 +13,7 @@
  *
  * Ver escopo seções 3.1 (planos) e 4.1 (stack).
  */
-import { useAuthStore } from '@/store/useAuthStore';
+import { usePremiumStore } from '@/store/usePremiumStore';
 
 export type Plan = {
   id: 'monthly' | 'annual' | 'lifetime';
@@ -38,31 +38,47 @@ export const PLANS: Plan[] = [
 export const REVENUECAT_KEY = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY;
 export const isPurchasesConfigured = Boolean(REVENUECAT_KEY);
 
+/**
+ * Compra simulada — só existe em build de desenvolvimento (`__DEV__`).
+ *
+ * Serve para testar o app assinado antes de o RevenueCat estar ligado. Num APK
+ * de produção `__DEV__` é `false`, então esse caminho não existe: sem a loja
+ * configurada o app diz que a assinatura ainda não está disponível em vez de
+ * dar Premium de graça.
+ */
+export const isTestPurchaseAvailable = !isPurchasesConfigured && __DEV__;
+
 /** Inicializa o SDK (no-op enquanto não configurado). */
 export async function initPurchases(): Promise<void> {
   if (!isPurchasesConfigured) return;
   // TODO: Purchases.configure({ apiKey: REVENUECAT_KEY });
 }
 
-/** Compra um plano. Lança erro enquanto o SDK não está plugado. */
+/** Compra um plano. */
 export async function purchase(planId: Plan['id']): Promise<void> {
-  if (!isPurchasesConfigured) {
-    throw new Error(
-      'Assinaturas ainda não configuradas. Pluge o RevenueCat (ver src/services/subscriptions.ts).',
-    );
+  if (isPurchasesConfigured) {
+    // TODO: const { customerInfo } = await Purchases.purchasePackage(pkg);
+    // syncEntitlement(customerInfo.entitlements.active['premium'] != null);
+    void planId;
+    return;
   }
-  // TODO: const { customerInfo } = await Purchases.purchasePackage(pkg);
-  // syncEntitlement(customerInfo);
-  void planId;
+
+  if (isTestPurchaseAvailable) {
+    syncEntitlement(true, 'dev');
+    return;
+  }
+
+  throw new Error('subscriptions-unavailable');
 }
 
 /** Restaura compras anteriores. */
 export async function restore(): Promise<void> {
   if (!isPurchasesConfigured) return;
-  // TODO: const info = await Purchases.restorePurchases(); syncEntitlement(info);
+  // TODO: const info = await Purchases.restorePurchases();
+  // syncEntitlement(info.entitlements.active['premium'] != null);
 }
 
-/** Atualiza o status Premium na store de auth a partir do RevenueCat. */
-export function syncEntitlement(isPremium: boolean): void {
-  useAuthStore.getState().setPremium(isPremium);
+/** Atualiza o direito de acesso a partir do RevenueCat (ou do modo de teste). */
+export function syncEntitlement(isPremium: boolean, source: 'purchase' | 'dev' = 'purchase'): void {
+  usePremiumStore.getState().setPremium(isPremium, source);
 }

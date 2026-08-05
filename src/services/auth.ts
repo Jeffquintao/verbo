@@ -31,7 +31,6 @@ function mapUser(fbUser: FirebaseUser): User {
     id: fbUser.uid,
     name: fbUser.displayName ?? fbUser.email?.split('@')[0] ?? 'Usuário',
     email: fbUser.email ?? '',
-    isPremium: false, // será resolvido pelo RevenueCat / Firestore
   };
 }
 
@@ -77,7 +76,6 @@ export async function signInWithGoogle(): Promise<User> {
     id: account.id,
     name: account.name,
     email: account.email,
-    isPremium: false,
   };
   useAuthStore.getState().setUser(user);
   return user;

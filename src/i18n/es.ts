@@ -273,6 +273,20 @@ export const es: Translation = {
     subscribe: 'Suscribirse ahora',
     disclaimer: 'Renovación automática. Cancela cuando quieras en la Play Store.',
     purchaseDone: '¡Listo! Suscripción activada.',
+    lockedTitle: (feature) => `${feature} forma parte de Premium`,
+    lockedBody:
+      'Suscríbete para desbloquear esta y todas las demás funciones Premium. Cancela cuando quieras.',
+    unlock: 'Desbloquear Premium',
+    active: 'Premium activo',
+    activeSince: (date) => `Suscriptor desde ${date}`,
+    manage: 'Gestionar suscripción',
+    unavailable:
+      'Las suscripciones aún no están disponibles. Se abrirán en cuanto la app esté en Play Store.',
+    testMode: 'Modo de prueba',
+    testModeBody:
+      'Esta es una compilación de desarrollo: suscribirse aquí activa Premium localmente, sin cargo y sin pasar por Play Store.',
+    testTurnOff: 'Desactivar Premium',
+    freeVersionsOnly: 'Incluida en Premium',
   },
 
   auth: {

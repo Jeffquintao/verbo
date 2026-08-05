@@ -5,6 +5,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PremiumBadge } from '@/components/premium-badge';
+import { PremiumGate } from '@/components/premium-gate';
 import { BrandColors } from '@/constants/colors';
 import {
   getStrong,
@@ -17,6 +18,15 @@ import { useLocaleStore } from '@/store/useLocaleStore';
 type Lang = 'NT' | 'AT';
 
 export default function OriginalsScreen() {
+  const t = useTranslation();
+  return (
+    <PremiumGate title={t.originals.title} feature={t.originals.title}>
+      <Originals />
+    </PremiumGate>
+  );
+}
+
+function Originals() {
   const [lang, setLang] = useState<Lang>('NT');
   const t = useTranslation();
   const locale = useLocaleStore((s) => s.locale);

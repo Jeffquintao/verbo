@@ -22,13 +22,12 @@ import {
   PREMIUM_DAILY_LIMIT,
   useAgentStore,
 } from '@/store/useAgentStore';
-import { useAuthStore } from '@/store/useAuthStore';
+import { usePremium } from '@/store/usePremiumStore';
 
 export default function ProfessorScreen() {
   const { colors } = useTheme();
   const t = useTranslation();
-  const user = useAuthStore((s) => s.user);
-  const isPremium = user?.isPremium ?? false;
+  const isPremium = usePremium();
   const limit = isPremium ? PREMIUM_DAILY_LIMIT : FREE_DAILY_LIMIT;
 
   const messages = useAgentStore((s) => s.messages);

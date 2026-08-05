@@ -273,6 +273,20 @@ export const pt: Translation = {
     subscribe: 'Assinar agora',
     disclaimer: 'Renovação automática. Cancele quando quiser na Play Store.',
     purchaseDone: 'Pronto! Assinatura ativada.',
+    lockedTitle: (feature) => `${feature} faz parte do Premium`,
+    lockedBody:
+      'Assine para liberar este e todos os outros recursos Premium. Cancele quando quiser.',
+    unlock: 'Liberar o Premium',
+    active: 'Premium ativo',
+    activeSince: (date) => `Assinante desde ${date}`,
+    manage: 'Gerenciar assinatura',
+    unavailable:
+      'As assinaturas ainda não estão disponíveis. Elas abrem assim que o app estiver na Play Store.',
+    testMode: 'Modo de teste',
+    testModeBody:
+      'Esta é uma build de desenvolvimento: assinar aqui ativa o Premium localmente, sem cobrança e sem passar pela Play Store.',
+    testTurnOff: 'Desativar o Premium',
+    freeVersionsOnly: 'Incluída no Premium',
   },
 
   auth: {

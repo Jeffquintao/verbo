@@ -5,6 +5,7 @@ import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PremiumBadge } from '@/components/premium-badge';
+import { PremiumGate } from '@/components/premium-gate';
 import { BrandColors } from '@/constants/colors';
 import { formatRef, getPlace, type PlaceRef } from '@/constants/places';
 import { useTheme } from '@/hooks/use-theme';
@@ -14,6 +15,15 @@ import { useLocaleStore } from '@/store/useLocaleStore';
 type Tab = 'hoje' | 'seculo' | 'mapa';
 
 export default function PlaceDetailScreen() {
+  const t = useTranslation();
+  return (
+    <PremiumGate title={t.places.detailTitle} feature={t.places.title}>
+      <PlaceDetail />
+    </PremiumGate>
+  );
+}
+
+function PlaceDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const locale = useLocaleStore((s) => s.locale);
   const place = getPlace(id, locale);

@@ -5,6 +5,7 @@ import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PremiumBadge } from '@/components/premium-badge';
+import { PremiumGate } from '@/components/premium-gate';
 import { BrandColors } from '@/constants/colors';
 import {
   formatRef,
@@ -34,6 +35,15 @@ export function regionLabel(
 }
 
 export default function PlacesScreen() {
+  const t = useTranslation();
+  return (
+    <PremiumGate title={t.places.title} feature={t.places.title}>
+      <Places />
+    </PremiumGate>
+  );
+}
+
+function Places() {
   const t = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
   const [query, setQuery] = useState('');

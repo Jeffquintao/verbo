@@ -7,13 +7,22 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BrandColors } from '@/constants/colors';
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n';
-import { PLANS, purchase, type Plan } from '@/services/subscriptions';
+import {
+  isTestPurchaseAvailable,
+  PLANS,
+  purchase,
+  syncEntitlement,
+  type Plan,
+} from '@/services/subscriptions';
+import { usePremiumStore } from '@/store/usePremiumStore';
 
 export default function PremiumScreen() {
   const { colors } = useTheme();
   const t = useTranslation();
   const [selected, setSelected] = useState<Plan['id']>('annual');
   const [loading, setLoading] = useState(false);
+  const isPremium = usePremiumStore((s) => s.isPremium);
+  const since = usePremiumStore((s) => s.since);
 
   const BENEFITS = [
     t.premium.benefit1,
@@ -38,7 +47,11 @@ export default function PremiumScreen() {
       Alert.alert(t.premium.purchaseDone);
       router.back();
     } catch (err) {
-      Alert.alert(t.premium.title, err instanceof Error ? err.message : t.common.somethingWentWrong);
+      const msg =
+        err instanceof Error && err.message === 'subscriptions-unavailable'
+          ? t.premium.unavailable
+          : t.common.somethingWentWrong;
+      Alert.alert(t.premium.title, msg);
     } finally {
       setLoading(false);
     }
@@ -58,7 +71,14 @@ export default function PremiumScreen() {
             <Ionicons name="diamond" size={32} color="#fff" />
           </View>
           <Text className="text-2xl font-bold text-foreground">{t.premium.title}</Text>
-          <Text className="text-sm text-foreground/50">{t.premium.subtitle}</Text>
+          <Text className="text-sm text-foreground/50">
+            {isPremium ? t.premium.active : t.premium.subtitle}
+          </Text>
+          {isPremium && since && (
+            <Text className="mt-1 text-xs text-foreground/40">
+              {t.premium.activeSince(new Date(since).toLocaleDateString())}
+            </Text>
+          )}
         </View>
 
         {/* Benefícios */}
@@ -71,8 +91,9 @@ export default function PremiumScreen() {
           ))}
         </View>
 
-        {/* Planos */}
-        {PLANS.map((p) => {
+        {/* Planos — escondidos para quem já assina. */}
+        {!isPremium &&
+          PLANS.map((p) => {
           const active = selected === p.id;
           return (
             <Pressable
@@ -100,20 +121,41 @@ export default function PremiumScreen() {
                   color={active ? BrandColors.primary : BrandColors.muted}
                 />
               </View>
-            </Pressable>
-          );
-        })}
+              </Pressable>
+            );
+          })}
 
-        <Pressable
-          onPress={handleSubscribe}
-          disabled={loading}
-          className="mt-3 items-center rounded-full bg-primary py-4 active:opacity-80">
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text className="text-base font-bold text-white">{t.premium.subscribe}</Text>
-          )}
-        </Pressable>
+        {!isPremium && (
+          <Pressable
+            onPress={handleSubscribe}
+            disabled={loading}
+            className="mt-3 items-center rounded-full bg-primary py-4 active:opacity-80">
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text className="text-base font-bold text-white">{t.premium.subscribe}</Text>
+            )}
+          </Pressable>
+        )}
+
+        {/* Modo de teste: só existe em build de desenvolvimento. Fica explícito
+            para nunca ser confundido com uma cobrança de verdade. */}
+        {isTestPurchaseAvailable && (
+          <View className="mt-5 rounded-2xl border border-gold/40 bg-gold/10 p-4">
+            <View className="mb-1 flex-row items-center gap-2">
+              <Ionicons name="construct" size={16} color={BrandColors.goldDark} />
+              <Text className="font-bold text-gold-dark">{t.premium.testMode}</Text>
+            </View>
+            <Text className="text-xs leading-4 text-foreground/60">{t.premium.testModeBody}</Text>
+            {isPremium && (
+              <Pressable
+                onPress={() => syncEntitlement(false)}
+                className="mt-3 items-center rounded-full bg-surface py-3 active:opacity-70">
+                <Text className="font-semibold text-foreground">{t.premium.testTurnOff}</Text>
+              </Pressable>
+            )}
+          </View>
+        )}
 
         <Text className="mt-4 text-center text-xs text-foreground/40">
           {t.premium.disclaimer}

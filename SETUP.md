@@ -79,6 +79,34 @@ client ID invertido, `com.googleusercontent.apps.SEU-ID`) e preencha
 Enquanto nada disso estiver feito, o app continua funcionando em **modo
 visitante** — só o botão do Google fica indisponível.
 
+## O que é Premium
+
+Bloqueado por `usePremiumStore` (persistido, e independente de login — um
+visitante pode assinar):
+
+| Recurso | Grátis | Premium |
+|---|---|---|
+| Leitura, busca, notas, destaques, plano | ✅ | ✅ |
+| Quiz, Corrida da Fé, Mídia | ✅ | ✅ |
+| Versões da Bíblia | a 1ª do idioma | todas |
+| Comparar versões | ❌ | ✅ |
+| Bíblia em áudio | ❌ | ✅ |
+| Textos originais (grego/hebraico) | ❌ | ✅ |
+| Lugares históricos | ❌ | ✅ |
+| Professor de Teologia | 2 perguntas/dia | 30/dia |
+
+Para proteger uma tela nova, envolva-a em `<PremiumGate>` (ver
+`src/components/premium-gate.tsx`).
+
+> Isso é experiência do usuário, não segurança. O que precisa mesmo ser
+> protegido (a cota do Professor) é revalidado no servidor.
+
+**Testar como assinante:** enquanto o RevenueCat não estiver configurado, a
+tela de Premium em **build de desenvolvimento** ativa a assinatura localmente
+(sem cobrança) e mostra um aviso de "Modo de teste", com botão para desligar.
+Em APK de produção `__DEV__` é `false` e esse caminho não existe — sem a loja
+configurada o app diz que a assinatura ainda não está disponível.
+
 ## Ligar assinaturas (RevenueCat) — precisa de dev build
 
 O SDK `react-native-purchases` **não roda no Expo Go**. Para ativar:
