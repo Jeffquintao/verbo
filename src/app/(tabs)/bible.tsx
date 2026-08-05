@@ -51,11 +51,13 @@ export default function BibleScreen() {
   const chapterNum = lastRead?.chapter ?? 1;
   const meta = getBook(bookIndex);
 
-  if (!meta) return null;
-
+  // Todo hook precisa rodar antes de qualquer return: sair mais cedo mudaria a
+  // quantidade de hooks entre renders e quebraria o componente.
   const { verses, loading } = useChapter(version, bookIndex, chapterNum);
   const prev = prevChapter(bookIndex, chapterNum);
   const next = nextChapter(bookIndex, chapterNum);
+
+  if (!meta) return null;
 
   const TABS: { id: Tab; label: string }[] = [
     { id: 'leitura', label: t.bible.reading },

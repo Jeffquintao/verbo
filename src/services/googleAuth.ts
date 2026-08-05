@@ -44,6 +44,7 @@ function loadModule(): GoogleSigninModule | null {
   if (isExpoGo) return null;
   try {
     // require (e não import) para o módulo nativo não ser tocado no Expo Go.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     mod = require('@react-native-google-signin/google-signin') as GoogleSigninModule;
     return mod;
   } catch {

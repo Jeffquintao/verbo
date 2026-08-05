@@ -6,12 +6,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n';
 import { bookIndexByAbbrev, bookName, getBook } from '@/services/bible';
-import { useBibleStore } from '@/store/useBibleStore';
 import { useLocaleStore } from '@/store/useLocaleStore';
 
 export default function ChapterPicker() {
   const { book } = useLocalSearchParams<{ book: string }>();
-  const version = useBibleStore((s) => s.version);
   const { colors } = useTheme();
   const t = useTranslation();
   const locale = useLocaleStore((s) => s.locale);

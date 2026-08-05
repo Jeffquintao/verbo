@@ -7,12 +7,10 @@ import { BrandColors } from '@/constants/colors';
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n';
 import { bookName, getBook } from '@/services/bible';
-import { useBibleStore } from '@/store/useBibleStore';
 import { useLocaleStore } from '@/store/useLocaleStore';
 import { useLibraryStore } from '@/store/useLibraryStore';
 
 export default function NotesScreen() {
-  const version = useBibleStore((s) => s.version);
   const notes = useLibraryStore((s) => s.notes);
   const removeNote = useLibraryStore((s) => s.removeNote);
   const { colors } = useTheme();

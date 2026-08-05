@@ -4,7 +4,6 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { ScreenHeader } from '@/components/screen-header';
 import { useTranslation } from '@/i18n';
-import { BrandColors } from '@/constants/colors';
 import { DIVISIONS, MY_RANK, RANKING, type RankPlayer } from '@/constants/ranking';
 
 export default function RankingScreen() {

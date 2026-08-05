@@ -35,6 +35,9 @@ export const BOOKS = booksData;
 export type BibleText = string[][][];
 
 // Módulos de asset (o require aqui devolve só um ID, não o conteúdo).
+// O Metro só registra o asset via require(); com import ele tentaria embutir
+// os ~20 MB de texto no bundle JS, que é justamente o que queremos evitar.
+/* eslint-disable @typescript-eslint/no-require-imports */
 const ASSETS: Record<BibleVersion, number> = {
   ACF: require('../../assets/bible/acf.bible'),
   NVI: require('../../assets/bible/nvi.bible'),
@@ -42,6 +45,7 @@ const ASSETS: Record<BibleVersion, number> = {
   ASV: require('../../assets/bible/asv.bible'),
   RVR: require('../../assets/bible/rvr.bible'),
 };
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 const cache: Partial<Record<BibleVersion, BibleText>> = {};
 const inFlight: Partial<Record<BibleVersion, Promise<BibleText>>> = {};
