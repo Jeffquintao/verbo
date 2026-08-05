@@ -1,10 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { ScreenHeader } from '@/components/screen-header';
-import { mediaForLocale, type MediaTab } from '@/constants/media';
+import {
+  mediaForLocale,
+  playlistsForTab,
+  videoThumb,
+  type MediaTab,
+  type Playlist,
+} from '@/constants/media';
 import { useTranslation } from '@/i18n';
 import { useLocaleStore } from '@/store/useLocaleStore';
 
@@ -17,6 +23,7 @@ export default function MidiaScreen() {
   const media = mediaForLocale(locale);
   const featured = media.featured[tab];
   const items = media.items[tab];
+  const playlists = playlistsForTab(locale, tab);
   const TABS: { id: MediaTab; label: string }[] = [
     { id: 'videos', label: t.media.videos },
     { id: 'podcasts', label: t.media.podcasts },
@@ -66,6 +73,18 @@ export default function MidiaScreen() {
           </View>
         </Pressable>
 
+        {/* Playlists curadas */}
+        {playlists.length > 0 && (
+          <>
+            <Text className="mb-2 text-xs font-bold uppercase tracking-wider text-white/40">
+              {t.media.playlists}
+            </Text>
+            {playlists.map((pl) => (
+              <PlaylistCard key={pl.id} playlist={pl} count={t.media.tracks(pl.tracks.length)} />
+            ))}
+          </>
+        )}
+
         {/* Grade */}
         <Text className="mb-3 text-xs font-bold uppercase tracking-wider text-white/40">
           {tab === 'louvores' ? t.media.popularWorship : tab === 'podcasts' ? t.media.episodes : t.media.recommended}
@@ -106,5 +125,39 @@ export default function MidiaScreen() {
         </View>
       </ScrollView>
     </View>
+  );
+}
+
+/** Cartão de playlist: mosaico das 4 primeiras capas + título. */
+function PlaylistCard({ playlist, count }: { playlist: Playlist; count: string }) {
+  return (
+    <Pressable
+      onPress={() => router.push(`/media/${playlist.id}` as never)}
+      className="mb-4 flex-row items-center gap-3 overflow-hidden rounded-2xl bg-white/5 p-3 active:opacity-80">
+      <View
+        className="h-16 w-16 flex-row flex-wrap overflow-hidden rounded-xl"
+        style={{ backgroundColor: playlist.color }}>
+        {playlist.tracks.slice(0, 4).map((track) => (
+          <Image
+            key={track.videoId}
+            source={{ uri: videoThumb(track.videoId) }}
+            style={{ width: '50%', height: '50%' }}
+            resizeMode="cover"
+          />
+        ))}
+      </View>
+
+      <View className="flex-1">
+        <Text className="font-bold text-white" numberOfLines={1}>
+          {playlist.title}
+        </Text>
+        <Text className="text-xs text-white/45" numberOfLines={1}>
+          {playlist.subtitle}
+        </Text>
+        <Text className="mt-0.5 text-xs text-white/30">{count}</Text>
+      </View>
+
+      <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.4)" />
+    </Pressable>
   );
 }

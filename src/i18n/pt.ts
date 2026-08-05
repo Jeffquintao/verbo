@@ -125,6 +125,12 @@ export const pt: Translation = {
     popularWorship: 'Louvores populares',
     premiumPitch: 'Acesse todos os estudos e versões, sem anúncios.',
     seePlans: 'Ver planos — a partir de $2,99',
+    playlists: 'Playlists',
+    playlist: 'Playlist',
+    tracks: (n) => `${n} vídeo${n === 1 ? '' : 's'}`,
+    playAll: 'Abrir no YouTube',
+    playlistNotFound: 'Playlist não encontrada.',
+    opensInYouTube: 'Os vídeos abrem no app do YouTube.',
   },
 
   quiz: {

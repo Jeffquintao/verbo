@@ -125,6 +125,12 @@ export const es: Translation = {
     popularWorship: 'Alabanzas populares',
     premiumPitch: 'Accede a todos los estudios y versiones, sin anuncios.',
     seePlans: 'Ver planes — desde $2,99',
+    playlists: 'Playlists',
+    playlist: 'Playlist',
+    tracks: (n) => `${n} video${n === 1 ? '' : 's'}`,
+    playAll: 'Abrir en YouTube',
+    playlistNotFound: 'Playlist no encontrada.',
+    opensInYouTube: 'Los videos se abren en la app de YouTube.',
   },
 
   quiz: {

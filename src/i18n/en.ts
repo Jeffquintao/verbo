@@ -129,6 +129,12 @@ export const en = {
     popularWorship: 'Popular worship',
     premiumPitch: 'Get all studies and versions, with no ads.',
     seePlans: 'See plans — from $2.99',
+    playlists: 'Playlists',
+    playlist: 'Playlist',
+    tracks: (n: number) => `${n} video${n === 1 ? '' : 's'}`,
+    playAll: 'Play on YouTube',
+    playlistNotFound: 'Playlist not found.',
+    opensInYouTube: 'Videos open in the YouTube app.',
   },
 
   quiz: {
