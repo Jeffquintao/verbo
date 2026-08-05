@@ -6,6 +6,7 @@ import { ActivityIndicator, Modal, Pressable, ScrollView, Text, View } from 'rea
 import { BrandColors } from '@/constants/colors';
 import { themeVars } from '@/constants/themes';
 import { useTheme } from '@/hooks/use-theme';
+import { useModalAnimation } from '@/store/useSettingsStore';
 import { useTranslation } from '@/i18n';
 import {
   getVoicesForLocale,
@@ -27,6 +28,7 @@ const PITCH_PRESETS = [
 
 export function VoicePicker({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { scheme, colors } = useTheme();
+  const modalAnimation = useModalAnimation('slide');
   const t = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
   const voiceId = useAudioSettings((s) => s.voiceId);
@@ -71,7 +73,7 @@ export function VoicePicker({ visible, onClose }: { visible: boolean; onClose: (
   }
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
+    <Modal visible={visible} transparent animationType={modalAnimation} onRequestClose={close}>
       <Pressable style={themeVars[scheme]} className="flex-1 justify-end bg-black/40" onPress={close}>
         <Pressable
           className="max-h-[72%] rounded-t-3xl bg-background p-5 pb-8"

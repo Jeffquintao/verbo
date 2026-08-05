@@ -21,6 +21,8 @@ import {
 import { useBibleStore } from '@/store/useBibleStore';
 import { useLibraryStore, verseKey } from '@/store/useLibraryStore';
 import { useLocaleStore } from '@/store/useLocaleStore';
+import { useKeepScreenOn } from '@/hooks/use-keep-screen-on';
+import { useVerseStyle } from '@/store/useSettingsStore';
 
 export default function ReaderScreen() {
   const { book, chapter } = useLocalSearchParams<{ book: string; chapter: string }>();
@@ -33,6 +35,8 @@ export default function ReaderScreen() {
   const { colors } = useTheme();
   const t = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
+  const verseStyle = useVerseStyle();
+  useKeepScreenOn('reader');
 
   const bookIndex = bookIndexByAbbrev(book);
   const chapterNum = Number(chapter) || 1;
@@ -108,9 +112,11 @@ export default function ReaderScreen() {
               onPress={() => setSelectedVerse(verseNum)}
               className="mb-1 rounded-lg active:opacity-60">
               <Text
-                className="px-1 py-1 text-base leading-7 text-foreground"
-                style={hex ? { backgroundColor: hex + '40' } : undefined}>
-                <Text className="align-top text-xs font-bold text-primary">{verseNum} </Text>
+                className="px-1 py-1 text-foreground"
+                style={[verseStyle.verse, hex ? { backgroundColor: hex + '40' } : null]}>
+                <Text style={verseStyle.number} className="align-top font-bold text-primary">
+                  {verseNum}{' '}
+                </Text>
                 {text}
                 {hasNote && <Text>  📝</Text>}
               </Text>

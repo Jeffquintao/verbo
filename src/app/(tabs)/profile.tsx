@@ -10,6 +10,7 @@ import { logout } from '@/services/auth';
 import { useAuthStore } from '@/store/useAuthStore';
 import { LOCALES, useLocaleStore } from '@/store/useLocaleStore';
 import { usePremiumStore } from '@/store/usePremiumStore';
+import { useDisplayName } from '@/store/useSettingsStore';
 import { useTalentsStore } from '@/store/useTalentsStore';
 
 const THEME_OPTIONS = [
@@ -27,12 +28,13 @@ export default function ProfileScreen() {
   const setLocale = useLocaleStore((s) => s.setLocale);
   const isPremium = usePremiumStore((s) => s.isPremium);
   const since = usePremiumStore((s) => s.since);
+  const displayName = useDisplayName(user?.name, t.common.guest);
 
   const settings = [
     { label: t.profile.readingPlans, icon: 'calendar' as const, href: '/plan' },
     { label: t.profile.myNotes, icon: 'create' as const, href: '/notes' },
     { label: t.profile.notifications, icon: 'notifications' as const },
-    { label: t.profile.settings, icon: 'settings' as const },
+    { label: t.profile.settings, icon: 'settings' as const, href: '/settings' },
   ];
 
   return (
@@ -43,7 +45,7 @@ export default function ProfileScreen() {
           <View className="mb-3 h-20 w-20 items-center justify-center rounded-full bg-primary/10">
             <Ionicons name="person" size={40} color={BrandColors.primary} />
           </View>
-          <Text className="text-xl font-bold text-foreground">{user?.name ?? t.common.guest}</Text>
+          <Text className="text-xl font-bold text-foreground">{displayName}</Text>
           <Text className="text-sm text-foreground/50">
             {user?.email ?? t.profile.signInPrompt}
           </Text>

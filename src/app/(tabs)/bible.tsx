@@ -26,6 +26,7 @@ import { useBibleStore } from '@/store/useBibleStore';
 import { useLibraryStore, verseKey } from '@/store/useLibraryStore';
 import { useLocaleStore } from '@/store/useLocaleStore';
 import { usePremium } from '@/store/usePremiumStore';
+import { useModalAnimation, useVerseStyle } from '@/store/useSettingsStore';
 
 type Tab = 'leitura' | 'comparar' | 'notas';
 
@@ -41,6 +42,7 @@ export default function BibleScreen() {
   const highlights = useLibraryStore((s) => s.highlights);
   const notes = useLibraryStore((s) => s.notes);
   const isPremium = usePremium();
+  const modalAnimation = useModalAnimation('fade');
 
   const [tab, setTab] = useState<Tab>('leitura');
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
@@ -212,7 +214,7 @@ export default function BibleScreen() {
       />
 
       {/* Menu (...) */}
-      <Modal visible={showMenu} transparent animationType="fade" onRequestClose={() => setShowMenu(false)}>
+      <Modal visible={showMenu} transparent animationType={modalAnimation} onRequestClose={() => setShowMenu(false)}>
         <Pressable
           style={themeVars[scheme]}
           className="flex-1 justify-end bg-black/40"
@@ -273,6 +275,7 @@ function LeituraTab({
 }) {
   const t = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
+  const verseStyle = useVerseStyle();
   const places = placesInChapter(getBook(bookIndex)?.abbrev ?? '', chapterNum, locale).slice(0, 1);
   return (
     <>
@@ -288,9 +291,11 @@ function LeituraTab({
             onPress={() => onSelectVerse(verseNum)}
             className="mb-1 rounded-lg active:opacity-60">
             <Text
-              className="px-1 py-1 text-base leading-7 text-foreground"
-              style={hex ? { backgroundColor: hex + '40' } : undefined}>
-              <Text className="text-xs font-bold text-primary">{verseNum} </Text>
+              className="px-1 py-1 text-foreground"
+              style={[verseStyle.verse, hex ? { backgroundColor: hex + '40' } : null]}>
+              <Text style={verseStyle.number} className="font-bold text-primary">
+                {verseNum}{' '}
+              </Text>
               {text}
               {hasNote && <Text>{'  '}📝</Text>}
             </Text>

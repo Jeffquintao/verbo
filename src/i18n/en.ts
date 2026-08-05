@@ -293,6 +293,42 @@ export const en = {
     freeVersionsOnly: 'Included in Premium',
   },
 
+  settings: {
+    title: 'Settings',
+    accountSection: 'Account',
+    yourName: 'Your name',
+    namePlaceholder: 'How should we call you?',
+    nameHint: 'Used in the greeting on the home screen.',
+
+    readingSection: 'Bible reading',
+    fontSize: 'Text size',
+    lineSpacing: 'Line spacing',
+    spacingCompact: 'Compact',
+    spacingNormal: 'Normal',
+    spacingRelaxed: 'Relaxed',
+    serif: 'Serif typeface',
+    serifHint: 'Like a printed Bible. Some people find it easier to read.',
+    preview: 'Preview',
+    previewVerse:
+      'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.',
+    previewRef: 'John 3:16',
+
+    accessibilitySection: 'Accessibility',
+    boldText: 'Bolder text',
+    boldTextHint: 'Increases contrast for the verse text.',
+    keepAwake: 'Keep the screen on',
+    keepAwakeHint: 'The screen will not sleep while you read or listen.',
+    reduceMotion: 'Reduce motion',
+    reduceMotionHint: 'Removes the sliding animation from panels.',
+
+    aboutSection: 'About',
+    version: 'Version',
+    resetTitle: 'Reset settings',
+    resetConfirm: 'Restore every reading and accessibility option to its default?',
+    reset: 'Reset',
+    cancel: 'Cancel',
+  },
+
   auth: {
     signInTitle: 'Sign in to get started',
     google: 'Continue with Google',

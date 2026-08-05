@@ -5,6 +5,7 @@ import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { themeVars } from '@/constants/themes';
 import { useTranslation } from '@/i18n';
 import { useTheme } from '@/hooks/use-theme';
+import { useModalAnimation } from '@/store/useSettingsStore';
 import { useLocaleStore } from '@/store/useLocaleStore';
 import { BOOKS, bookName } from '@/services/bible';
 
@@ -19,6 +20,7 @@ export function BookChapterPicker({
   onSelect: (bookIndex: number, chapter: number) => void;
 }) {
   const { scheme, colors } = useTheme();
+  const modalAnimation = useModalAnimation('slide');
   const locale = useLocaleStore((s) => s.locale);
   const t = useTranslation();
   const [bookIndex, setBookIndex] = useState<number | null>(null);
@@ -33,7 +35,7 @@ export function BookChapterPicker({
   const nt = BOOKS.map((b, i) => ({ b, i })).filter(({ b }) => b.testament === 'NT');
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
+    <Modal visible={visible} transparent animationType={modalAnimation} onRequestClose={close}>
       <Pressable style={themeVars[scheme]} className="flex-1 justify-end bg-black/40" onPress={close}>
         <Pressable
           className="h-[78%] rounded-t-3xl bg-background p-5"

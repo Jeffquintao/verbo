@@ -25,6 +25,7 @@ import {
   pickDefaultVoice,
   speechLanguage,
 } from '@/services/tts';
+import { useKeepScreenOn } from '@/hooks/use-keep-screen-on';
 import { useAudioSettings } from '@/store/useAudioSettings';
 import { useLocaleStore } from '@/store/useLocaleStore';
 import { useBibleStore } from '@/store/useBibleStore';
@@ -50,6 +51,7 @@ function AudioPlayer() {
   const [showVoices, setShowVoices] = useState(false);
   const t = useTranslation();
   const locale = useLocaleStore((s) => s.locale);
+  useKeepScreenOn('audio-player');
 
   const bookIndex = bookIndexByAbbrev(book);
   const chapterNum = Number(chapter) || 1;

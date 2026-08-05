@@ -289,6 +289,42 @@ export const pt: Translation = {
     freeVersionsOnly: 'Incluída no Premium',
   },
 
+  settings: {
+    title: 'Configurações',
+    accountSection: 'Conta',
+    yourName: 'Seu nome',
+    namePlaceholder: 'Como podemos te chamar?',
+    nameHint: 'Usado na saudação da tela inicial.',
+
+    readingSection: 'Leitura da Bíblia',
+    fontSize: 'Tamanho do texto',
+    lineSpacing: 'Espaçamento entre linhas',
+    spacingCompact: 'Compacto',
+    spacingNormal: 'Normal',
+    spacingRelaxed: 'Espaçado',
+    serif: 'Fonte com serifa',
+    serifHint: 'Como uma Bíblia impressa. Muita gente lê com mais facilidade.',
+    preview: 'Prévia',
+    previewVerse:
+      'Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.',
+    previewRef: 'João 3:16',
+
+    accessibilitySection: 'Acessibilidade',
+    boldText: 'Texto mais forte',
+    boldTextHint: 'Aumenta o contraste do texto bíblico.',
+    keepAwake: 'Manter a tela ligada',
+    keepAwakeHint: 'A tela não apaga enquanto você lê ou ouve.',
+    reduceMotion: 'Reduzir animações',
+    reduceMotionHint: 'Tira a animação de deslize dos painéis.',
+
+    aboutSection: 'Sobre',
+    version: 'Versão',
+    resetTitle: 'Restaurar configurações',
+    resetConfirm: 'Voltar todas as opções de leitura e acessibilidade ao padrão?',
+    reset: 'Restaurar',
+    cancel: 'Cancelar',
+  },
+
   auth: {
     signInTitle: 'Entre para começar',
     google: 'Continuar com Google',

@@ -10,6 +10,7 @@ import { useChapter } from '@/hooks/use-bible-text';
 import { bookName, getBook } from '@/services/bible';
 import { PLAN_DAYS } from '@/services/readingPlan';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useDisplayName } from '@/store/useSettingsStore';
 import { useBibleStore } from '@/store/useBibleStore';
 import { useLocaleStore } from '@/store/useLocaleStore';
 import { usePlanStore } from '@/store/usePlanStore';
@@ -34,6 +35,7 @@ const MODULES: Module[] = [
 export default function HomeScreen() {
   const t = useTranslation();
   const user = useAuthStore((s) => s.user);
+  const displayName = useDisplayName(user?.name, t.common.guest);
   const talents = useTalentsStore((s) => s.balance);
   const completed = usePlanStore((s) => s.completed);
   const version = useBibleStore((s) => s.version);
@@ -56,7 +58,7 @@ export default function HomeScreen() {
   return (
     <View className="flex-1 bg-background">
       <ScreenHeader
-        title={t.home.greeting(user?.name ?? t.common.guest)}
+        title={t.home.greeting(displayName)}
         subtitle={t.home.subtitle(currentDay)}
         right={
           <Pressable

@@ -5,6 +5,7 @@ import { Modal, Pressable, Text, TextInput, View } from 'react-native';
 import { BrandColors } from '@/constants/colors';
 import { themeVars } from '@/constants/themes';
 import { useTheme } from '@/hooks/use-theme';
+import { useModalAnimation } from '@/store/useSettingsStore';
 import { useTranslation } from '@/i18n';
 import { HIGHLIGHT_COLORS, useLibraryStore, verseKey } from '@/store/useLibraryStore';
 
@@ -21,6 +22,7 @@ export function VerseActionSheet({ bookIndex, chapter, verse, reference, onClose
   const addNote = useLibraryStore((s) => s.addNote);
   const highlights = useLibraryStore((s) => s.highlights);
   const { scheme } = useTheme();
+  const modalAnimation = useModalAnimation('slide');
   const t = useTranslation();
   const [noteText, setNoteText] = useState('');
   const [noteMode, setNoteMode] = useState(false);
@@ -42,7 +44,7 @@ export function VerseActionSheet({ bookIndex, chapter, verse, reference, onClose
   }
 
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={close}>
+    <Modal visible={open} transparent animationType={modalAnimation} onRequestClose={close}>
       <Pressable style={themeVars[scheme]} className="flex-1 justify-end bg-black/40" onPress={close}>
         <Pressable className="rounded-t-3xl bg-background p-5 pb-8" onPress={(e) => e.stopPropagation()}>
           <View className="mb-4 h-1 w-10 self-center rounded-full bg-ink/15" />
