@@ -241,11 +241,13 @@ export const es: Translation = {
     voice: 'Voz',
     chapterNotFound: 'Capítulo no encontrado.',
     voicePickerTitle: 'Elegir voz',
-    voicePickerHint: 'Toca para escuchar y seleccionar. Las voces «Premium» suenan más naturales.',
+    voicePickerHint: 'Toca para escuchar y seleccionar. Las voces marcadas con HD son las más naturales.',
     voiceTone: 'Tono de voz',
     availableVoices: 'Voces disponibles',
     noVoices:
-      'No se encontró ninguna voz en español en el dispositivo. Puedes instalar voces en los ajustes del sistema (Accesibilidad › Contenido hablado).',
+      'No se encontró ninguna voz de este idioma en el dispositivo. Puedes instalar una en los ajustes del sistema.',
+    voiceHdTip:
+      '¿Sin voz HD? Android: Ajustes › Idiomas › Salida de texto a voz › instala las voces de Google. iPhone: Ajustes › Accesibilidad › Contenido Hablado › Voces.',
     toneLow: 'Grave',
     toneNatural: 'Natural',
     toneMid: 'Medio',

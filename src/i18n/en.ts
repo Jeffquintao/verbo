@@ -245,11 +245,13 @@ export const en = {
     voice: 'Voice',
     chapterNotFound: 'Chapter not found.',
     voicePickerTitle: 'Choose a voice',
-    voicePickerHint: 'Tap to listen and select. “Premium” voices sound more natural.',
+    voicePickerHint: 'Tap to listen and select. Voices marked HD sound the most natural.',
     voiceTone: 'Voice tone',
     availableVoices: 'Available voices',
     noVoices:
-      'No Portuguese voice found on this device. You can install voices in the system settings (Accessibility › Spoken Content).',
+      'No voice for this language was found on your device. You can install one in the system settings.',
+    voiceHdTip:
+      'No HD voice? Android: Settings › Languages › Text-to-speech output › install the Google voices. iPhone: Settings › Accessibility › Spoken Content › Voices.',
     toneLow: 'Deep',
     toneNatural: 'Natural',
     toneMid: 'Medium',

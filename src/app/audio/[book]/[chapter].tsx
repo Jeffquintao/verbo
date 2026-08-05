@@ -18,7 +18,12 @@ import {
   prevChapter,
 } from '@/services/bible';
 import { isCloudTtsEnabled, synthesizeToBase64 } from '@/services/cloudTts';
-import { getPortugueseVoices, pickDefaultVoice } from '@/services/tts';
+import {
+  getVoicesForLocale,
+  humanizeForSpeech,
+  pickDefaultVoice,
+  speechLanguage,
+} from '@/services/tts';
 import { useAudioSettings } from '@/store/useAudioSettings';
 import { useLocaleStore } from '@/store/useLocaleStore';
 import { useBibleStore } from '@/store/useBibleStore';
@@ -48,6 +53,7 @@ export default function AudioPlayerScreen() {
   const [sleepLeft, setSleepLeft] = useState(0);
 
   const idxRef = useRef(0);
+  const queuedRef = useRef(-1);
   const playingRef = useRef(false);
   const rateRef = useRef(1.0);
   const voiceRef = useRef<string | null>(null);
@@ -59,14 +65,20 @@ export default function AudioPlayerScreen() {
   voiceRef.current = voiceId;
   pitchRef.current = pitch;
 
-  // Auto-seleciona a melhor voz PT (masculina/premium) na primeira vez.
+  // Escolhe a melhor voz do idioma atual. Refaz ao trocar de idioma: uma voz
+  // portuguesa lendo inglês (ou o contrário) é o pior resultado possível.
   useEffect(() => {
-    if (voiceId) return;
-    getPortugueseVoices().then((vs) => {
-      const def = pickDefaultVoice(vs);
-      if (def) setVoice(def);
+    let cancelled = false;
+    getVoicesForLocale(locale).then((vs) => {
+      if (cancelled) return;
+      const stillValid = voiceId && vs.some((v) => v.identifier === voiceId);
+      if (stillValid) return;
+      setVoice(pickDefaultVoice(vs));
     });
-  }, [voiceId, setVoice]);
+    return () => {
+      cancelled = true;
+    };
+  }, [locale, voiceId, setVoice]);
 
   // iOS: tocar mesmo no modo silencioso.
   useEffect(() => {
@@ -75,7 +87,8 @@ export default function AudioPlayerScreen() {
 
   // Para qualquer reprodução em andamento (nuvem + dispositivo).
   const stopPlayback = useCallback(async () => {
-    Speech.stop();
+    Speech.stop(); // limpa a fila também
+    queuedRef.current = -1;
     const s = soundRef.current;
     soundRef.current = null;
     if (s) {
@@ -85,6 +98,38 @@ export default function AudioPlayerScreen() {
       } catch {}
     }
   }, []);
+
+  /**
+   * Coloca um versículo na fila do TTS. O destaque na tela acompanha o
+   * `onStart` — com fila, o que está tocando não é necessariamente o último
+   * que foi enfileirado.
+   */
+  const enqueueVerse = useCallback(
+    (i: number) => {
+      if (i < 0 || i >= verses.length) return;
+      queuedRef.current = i;
+      Speech.speak(humanizeForSpeech(verses[i]), {
+        language: speechLanguage(locale),
+        voice: voiceRef.current ?? undefined,
+        pitch: pitchRef.current,
+        rate: rateRef.current,
+        onStart: () => {
+          idxRef.current = i;
+          setIdx(i);
+        },
+        onDone: () => {
+          if (!playingRef.current) return;
+          if (i >= verses.length - 1) {
+            playingRef.current = false;
+            setPlaying(false);
+            return;
+          }
+          enqueueVerse(queuedRef.current + 1);
+        },
+      });
+    },
+    [verses, locale],
+  );
 
   const speakFrom = useCallback(
     async (i: number) => {
@@ -98,7 +143,7 @@ export default function AudioPlayerScreen() {
 
       // Narração em nuvem (mais natural), quando configurada (.env).
       if (isCloudTtsEnabled) {
-        const b64 = await synthesizeToBase64(verses[i], {
+        const b64 = await synthesizeToBase64(humanizeForSpeech(verses[i]), {
           rate: rateRef.current,
           pitch: pitchRef.current,
         });
@@ -122,18 +167,13 @@ export default function AudioPlayerScreen() {
         }
       }
 
-      // Voz do dispositivo (offline).
-      Speech.speak(verses[i], {
-        language: 'pt-BR',
-        voice: voiceRef.current ?? undefined,
-        pitch: pitchRef.current,
-        rate: rateRef.current,
-        onDone: () => {
-          if (playingRef.current) speakFrom(idxRef.current + 1);
-        },
-      });
+      // Voz do dispositivo (offline). Enfileira o versículo seguinte junto: o
+      // TTS usa QUEUE_ADD, então emendar aqui tira o silêncio que aparecia
+      // enquanto o onDone de um versículo disparava a fala do próximo.
+      enqueueVerse(i);
+      enqueueVerse(i + 1);
     },
-    [verses],
+    [verses, enqueueVerse],
   );
 
   const play = useCallback(async () => {

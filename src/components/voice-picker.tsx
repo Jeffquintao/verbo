@@ -7,8 +7,16 @@ import { BrandColors } from '@/constants/colors';
 import { themeVars } from '@/constants/themes';
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n';
-import { getPortugueseVoices, type TtsVoice, VOICE_SAMPLE, voiceLabel } from '@/services/tts';
+import {
+  getVoicesForLocale,
+  isNaturalVoice,
+  speechLanguage,
+  type TtsVoice,
+  voiceLabel,
+  voiceSample,
+} from '@/services/tts';
 import { useAudioSettings } from '@/store/useAudioSettings';
+import { useLocaleStore } from '@/store/useLocaleStore';
 
 const PITCH_PRESETS = [
   { labelKey: 'toneLow' as const, value: 0.85 },
@@ -20,6 +28,7 @@ const PITCH_PRESETS = [
 export function VoicePicker({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { scheme, colors } = useTheme();
   const t = useTranslation();
+  const locale = useLocaleStore((s) => s.locale);
   const voiceId = useAudioSettings((s) => s.voiceId);
   const pitch = useAudioSettings((s) => s.pitch);
   const setVoice = useAudioSettings((s) => s.setVoice);
@@ -30,15 +39,20 @@ export function VoicePicker({ visible, onClose }: { visible: boolean; onClose: (
   useEffect(() => {
     if (!visible) return;
     setLoading(true);
-    getPortugueseVoices().then((v) => {
+    getVoicesForLocale(locale).then((v) => {
       setVoices(v);
       setLoading(false);
     });
-  }, [visible]);
+  }, [visible, locale]);
 
   function preview(voice: string | null, p: number) {
     Speech.stop();
-    Speech.speak(VOICE_SAMPLE, { voice: voice ?? undefined, language: 'pt-BR', pitch: p, rate: 1.0 });
+    Speech.speak(voiceSample(locale), {
+      voice: voice ?? undefined,
+      language: speechLanguage(locale),
+      pitch: p,
+      rate: 1.0,
+    });
   }
 
   function choose(id: string) {
@@ -127,6 +141,14 @@ export function VoicePicker({ visible, onClose }: { visible: boolean; onClose: (
                   </Pressable>
                 );
               })}
+
+              {/* Só aparece se o aparelho não tiver nenhuma voz boa — quem já
+                  tem não precisa da instrução. */}
+              {!voices.some(isNaturalVoice) && (
+                <Text className="mb-2 mt-1 text-xs leading-4 text-foreground/40">
+                  {t.audio.voiceHdTip}
+                </Text>
+              )}
             </ScrollView>
           )}
         </Pressable>
