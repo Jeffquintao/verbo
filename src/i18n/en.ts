@@ -231,6 +231,17 @@ export const en = {
     root: 'Root',
     grammar: 'Grammar',
     occurrences: 'Occurrences',
+    verse: 'Verse',
+    prevVerse: 'Previous',
+    nextVerse: 'Next',
+    changePassage: 'Change book',
+    loading: 'Loading the original text…',
+    notAvailable: 'No original text for this verse.',
+    inYourBible: (version: string) => `In ${version}`,
+    glossLanguageNote: 'Word-by-word gloss in English (source data).',
+    credit: 'Original text and tagging',
+    lemma: 'Dictionary form',
+    strongCode: 'Strong code',
   },
 
   audio: {

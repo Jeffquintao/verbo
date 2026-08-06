@@ -227,6 +227,17 @@ export const pt: Translation = {
     root: 'Raiz',
     grammar: 'Gramática',
     occurrences: 'Ocorrências',
+    verse: 'Versículo',
+    prevVerse: 'Anterior',
+    nextVerse: 'Próximo',
+    changePassage: 'Trocar livro',
+    loading: 'Carregando o texto original…',
+    notAvailable: 'Sem texto original para este versículo.',
+    inYourBible: (version) => `Na ${version}`,
+    glossLanguageNote: 'Glosa palavra a palavra em inglês (dado de origem).',
+    credit: 'Texto original e marcação',
+    lemma: 'Forma do dicionário',
+    strongCode: 'Código Strong',
   },
 
   audio: {

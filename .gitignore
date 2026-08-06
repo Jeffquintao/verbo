@@ -43,3 +43,6 @@ example
 # generated native folders
 /ios
 /android
+
+# Downloads brutos do STEPBible (100MB) — recriados por scripts/build-originals.js
+.cache/
